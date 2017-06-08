@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Flurry.iml" filepath="$PROJECT_DIR$/.idea/modules/Flurry.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/analytics/analytics.iml" filepath="$PROJECT_DIR$/.idea/modules/analytics/analytics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Flurry.iml" filepath="$PROJECT_DIR$/Flurry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/analytics/analytics.iml" filepath="$PROJECT_DIR$/analytics/analytics.iml" />
     </modules>
   </component>
 </project>
