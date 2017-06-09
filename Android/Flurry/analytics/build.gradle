@@ -20,8 +20,10 @@ android {
 
 dependencies {
     //compile fileTree(dir: 'libs', include: ['*.jar'])
-    //provided files('./libs/UnityPlayer.jar') // Avoid redundant Unity Player in final application APK
+    provided files('./libs/UnityPlayer.jar') // Avoid redundant Unity Player in final application APK
     //compile files('libs/amazon-ads-5.8.1.1.jar')
+    compile 'com.flurry.android:analytics:7.1.1'//Check if you use the lasted version
+    //
 }
 
 android.libraryVariants.all { variant ->

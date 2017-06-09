@@ -1,7 +1,17 @@
 package hammergames.flurry;
 
 import android.app.Activity;
+import android.app.Application;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
+
+import com.flurry.android.FlurryAgent;
+import com.flurry.android.FlurryGamingAgent;
+import com.unity3d.player.UnityPlayer;
+
+import java.util.Dictionary;
 
 
 //import com.unity3d.player.UnityPlayer;
@@ -11,257 +21,91 @@ import android.util.Log;
  * Created by OscarLeif on 5/6/2017.
  */
 
-public class FlurryPlugin {
-    public static String tag = "FlurryPlugin";
+public class FlurryPlugin extends Application
+{
+    public static String tag = "Flurry Plugin";
 
-    //public static String UnityObjName = "TwimlerAdRotator";
-    public static String UnityObjName = "AmazonAds";
+    public static String UnityObjName = "FlurryAnalytics";
 
     private static final FlurryPlugin instance = new FlurryPlugin();
 
     private Activity activity;
 
-    //private com.amazon.device.ads.InterstitialAd interstitialAd;
-
     private boolean IsInitialized = false;
 
     public static boolean interstitialAdLoaded = false;
 
+    private String versionName;
+
     //private AdLayout adView = null;
 
-    // Get instance of the AdRotator
-    public static FlurryPlugin getInstance() {
-        //FlurryPlugin.instance.activity = UnityPlayer.currentActivity;
 
-        Log.d(tag, "Amazon Ads Plugin instantiated.");
-
+    // Get the Main Activity
+    // First Called From Unity
+    public static FlurryPlugin getInstance(Activity mainActivity)
+    {
+        FlurryPlugin.instance.activity = mainActivity;
+        Log.d(tag, "Flurry Analytics Plugin instantiated.");
         return FlurryPlugin.instance;
     }
 
-    // Initialize Amazon Ads
-    public void init(String appKey, boolean testMode) {
-        Log.d(tag, "Initializing Amazon Ads plugin.");
-        //AdRegistration.enableTesting( testMode );
-        //AdRegistration.enableLogging( true );
-        //AdRegistration.setAppKey( appKey );
+    // Initialize Flurry Analytics
+    // Second Called from Unity
+    public void init(String appKey, boolean testMode)
+    {
+        Log.i(tag,"Flurry SDK initialized");
+
+        new FlurryAgent.Builder().withLogEnabled(testMode).build(activity, appKey);
+        PackageInfo pInfo;
+        try
+        {
+            pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+            versionName = pInfo.versionName;
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        FlurryAgent.setVersionName(versionName);
 
         IsInitialized = true;
+
+        //Print (Get) Release version
+
+        Log.i(tag, FlurryAgent.getReleaseVersion());
+
+        //Start Session
+        FlurryAgent.onStartSession(instance);
     }
 
-    // Create a Banner
-    public void createBanner(final String position) {
-        /*// Check if the plugin is initialized
-        if ( ! IsInitialized )
-        {
-            Log.d ( tag , "Amazon Ad plugin is not initialized yet!");
-
-            return;
-        }
-
-        final FlurryPlugin self = this;
-
-        // Create the ad view just once
-        if ( adView == null )
-        {
-            // Run the thread on Unity activity
-            activity.runOnUiThread (
-                    new Runnable() {
-                        public void run()
-                        {
-                            adView = new AdLayout( activity , AdSize.SIZE_AUTO);
-                            adView.setListener( self );
-
-                            LayoutParams layoutParams = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                                    LayoutParams.WRAP_CONTENT , getGravity( position ) );
-
-                            activity.addContentView( adView, layoutParams );
-                            adView.bringToFront();
-                            AdTargetingOptions adOptions = new AdTargetingOptions();
-                            adView.loadAd(adOptions);
-                        }
-                    });
-        }
-        else
-        {
-            refresh();
-        }*/
+    public void setLogEvent(String eventName)
+    {
+        FlurryAgent.logEvent(eventName);
     }
 
-    // Refresh banner for a new ad request
-    public void refresh() {
-        /*if ( adView != null )
-        {
-            Log.d ( tag , "Refreshing Amazon Ad banner.");
-
-            // Run the thread on Unity activity
-            activity.runOnUiThread (
-                    new Runnable() {
-                        public void run()
-                        {
-                            AdTargetingOptions adOptions = new AdTargetingOptions();
-                            adView.loadAd(adOptions);
-                        }
-                    });
-        }
-        else
-        {
-            Log.d ( tag , "Amazon Ad plugin is not initialized yet!");
-        }*/
-    }
-
-    // Hide the banner
-    public void hideBanner(final boolean hide) {
-        // Return if there is no ad view
-       /* if ( adView == null )
-        {
-            return;
-        }
-
-        // Run the thread on Unity activity
-        activity.runOnUiThread (
-                new Runnable() {
-                    public void run()
-                    {
-                        if ( hide )
-                        {
-                            adView.setVisibility( View.GONE );
-                        }
-                        else
-                        {
-                            adView.setVisibility( View.VISIBLE );
-                        }
-                    }
-                });*/
-    }
-
-    // Destroy the banner ad view
-    public void destroyBanner() {
-        /*if ( adView != null )
-        {
-            // Run the thread on Unity activity
-            activity.runOnUiThread (
-                    new Runnable() {
-                        public void run()
-                        {
-                            adView.destroy();
-
-                            adView = null;
-                        }
-                    });
-        }*/
-    }
-
-    // Request interstitials
-    public void requestInterstital() {
-        /*activity.runOnUiThread( new Runnable()
-        {
-            @Override public void run()
-            {
-                boolean shouldRequest = true;
-
-                if ( interstitialAd != null )
-                {
-                    if ( interstitialAd.isLoading() )
-                    {
-                        shouldRequest = false;
-                        Log.d(tag,"Amazon Interstitials is Loading");
-                    }
-
-                    if ( FlurryPlugin.interstitialAdLoaded )
-                    {
-                        shouldRequest = false;
-                        Log.d(tag,"Amazon Interstitials is loaded. Should be ready");
-                    }
-                }
-
-                if ( shouldRequest )
-                {
-
-                    Log.d ( tag , "Requesting Amazon Interstitials");
-
-                    interstitialAd = new com.amazon.device.ads.InterstitialAd( activity  );
-
-                    interstitialAd.setListener( new InterstitialsAdListener() );
-
-                    AdTargetingOptions adOptions = new AdTargetingOptions();
-
-                    interstitialAd.loadAd( adOptions );
-                }
-            }
-        });*/
+    public void setLogEvent(String eventName, Dictionary<String, String> parameters)
+    {
 
     }
 
-    // Show interstitial ad if its loaded
-    public void showInterstitial() {
-        /*activity.runOnUiThread( new Runnable()
-        {
-            @Override public void run()
-            {
-                if ( interstitialAd != null )
-                {
-                    if ( FlurryPlugin.interstitialAdLoaded )
-                    {
-                        interstitialAd.showAd();
-
-                        FlurryPlugin.interstitialAdLoaded = false;
-                    }
-                }
-            }
-        });*/
-
+    public void BegingLogEvent(String eventName, boolean timed)
+    {
+        FlurryAgent.logEvent(eventName, timed);
     }
 
-    // Get gravity of the banner based on the position
-    private int getGravity(String position) {
-        /*int gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-
-        // Top Left
-        if ( position.equals( "TL") )
-        {
-            gravity = Gravity.TOP | Gravity.LEFT;
-        }
-
-        // Top Middle
-        if ( position.equals( "TM") )
-        {
-            gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-        }
-
-        // Top Right
-        if ( position.equals( "TR") )
-        {
-            gravity = Gravity.TOP | Gravity.RIGHT;
-        }
-
-        // Bottom Left
-        if ( position.equals( "BL") )
-        {
-            gravity = Gravity.BOTTOM | Gravity.LEFT;
-        }
-
-        // Bottom Left
-        if ( position.equals( "BM") )
-        {
-            gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        }
-
-        // Bottom Right
-        if ( position.equals( "BR") )
-        {
-            gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        }
-
-        return gravity;*/
-        return 0;
+    public void EndLogEvent(String eventName)
+    {
+        FlurryAgent.endTimedEvent(eventName);
     }
-
     /**
-     * This event is called when an interstitial ad has been dismissed by the user.
+     * param1: ObjectName in Unity
+     * param2: methodName
+     * param3: String message
      */
 
-    public void sendMessageToUnity() {
-        //UnityPlayer.UnitySendMessage( UnityObjName, "OnAdEvent", "amazon-interstitial-dismiss");
-
+    public void sendMessageToUnity()
+    {
+        UnityPlayer.UnitySendMessage( UnityObjName, "OnAdEvent", "amazon-interstitial-dismiss");
     }
 }
