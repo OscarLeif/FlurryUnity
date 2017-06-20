@@ -5,48 +5,42 @@ import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 
 import com.flurry.android.FlurryAgent;
-import com.flurry.android.FlurryGamingAgent;
 import com.unity3d.player.UnityPlayer;
 
 import java.util.Dictionary;
-
-
-//import com.unity3d.player.UnityPlayer;
-//import com.unity3d.player.UnityPlayerActivity;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by OscarLeif on 5/6/2017.
  */
 
-public class FlurryPlugin extends Application
+public class AnalyticsPlugin extends Application
 {
     public static String tag = "Flurry Plugin";
 
     public static String UnityObjName = "FlurryAnalytics";
 
-    private static final FlurryPlugin instance = new FlurryPlugin();
+    private static final AnalyticsPlugin instance = new AnalyticsPlugin();
 
     private Activity activity;
 
     private boolean IsInitialized = false;
 
-    public static boolean interstitialAdLoaded = false;
-
     private String versionName;
-
-    //private AdLayout adView = null;
 
 
     // Get the Main Activity
     // First Called From Unity
-    public static FlurryPlugin getInstance(Activity mainActivity)
+    public static AnalyticsPlugin getInstance()
     {
-        FlurryPlugin.instance.activity = mainActivity;
-        Log.d(tag, "Flurry Analytics Plugin instantiated.");
-        return FlurryPlugin.instance;
+        AnalyticsPlugin.instance.activity = UnityPlayer.currentActivity;
+
+        Log.d(tag, "Flurry Analytics Get Main Instance");
+
+        return AnalyticsPlugin.instance;
     }
 
     // Initialize Flurry Analytics
@@ -68,27 +62,30 @@ public class FlurryPlugin extends Application
             e.printStackTrace();
         }
         FlurryAgent.setVersionName(versionName);
-
         IsInitialized = true;
-
         //Print (Get) Release version
-
         Log.i(tag, FlurryAgent.getReleaseVersion());
-
         //Start Session
         FlurryAgent.onStartSession(instance);
     }
 
-    public void setLogEvent(String eventName)
+    public void LogEvent(String eventName)
     {
         FlurryAgent.logEvent(eventName);
     }
 
-    public void setLogEvent(String eventName, Dictionary<String, String> parameters)
+    public void SetLogEvent(String eventName, HashMap<String, String> hashMap)
     {
-
+        //TODO Need to do a Test
+        FlurryAgent.logEvent(eventName, hashMap);
     }
 
+    public void SetLogEventRecord(String eventName, HashMap<String,String> hashMap)
+    {
+        FlurryAgent.logEvent(eventName,hashMap,true);
+    }
+
+    //Beging Log Event Duration
     public void BegingLogEvent(String eventName, boolean timed)
     {
         FlurryAgent.logEvent(eventName, timed);
@@ -106,6 +103,7 @@ public class FlurryPlugin extends Application
 
     public void sendMessageToUnity()
     {
-        UnityPlayer.UnitySendMessage( UnityObjName, "OnAdEvent", "amazon-interstitial-dismiss");
+        //(unityObjectName, methodName from previous Object, paramether string from previous method name)
+        UnityPlayer.UnitySendMessage( UnityObjName, "OnAndroidEvent", "amazon-interstitial-dismiss");
     }
 }

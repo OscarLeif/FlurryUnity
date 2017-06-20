@@ -5,12 +5,13 @@ android {
     buildToolsVersion "25.0.3"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 10
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
-    buildTypes {
+    buildTypes
+            {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -18,12 +19,16 @@ android {
     }
 }
 
+repositories
+        {
+            jcenter()
+        }
+
 dependencies {
     //compile fileTree(dir: 'libs', include: ['*.jar'])
     provided files('./libs/UnityPlayer.jar') // Avoid redundant Unity Player in final application APK
-    //compile files('libs/amazon-ads-5.8.1.1.jar')
-    compile 'com.flurry.android:analytics:7.1.1'//Check if you use the lasted version
-    //
+    compile files('libs/analytics-7.1.1.jar')
+
 }
 
 android.libraryVariants.all { variant ->
