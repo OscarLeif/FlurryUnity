@@ -3,10 +3,8 @@
     package="hammergames.flurry">
 
     <application
-        android:label="FlurryAnalytics"
         android:allowBackup="true"
         android:supportsRtl="true">
-
     </application>
 
 </manifest>

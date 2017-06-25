@@ -5,16 +5,19 @@ using UnityEngine;
 /// <summary>
 /// Flurry Object Only for Android
 /// </summary>
-public class FlurryAnalytics : Singleton<FlurryAnalytics>
+public class FlurryAnalytics : PluginSingleton<FlurryAnalytics>
 {
     AndroidJavaClass _class;
     AndroidJavaObject instance { get { return _class.GetStatic<AndroidJavaObject>("instance"); } }
 
-    public string flurryKey;
+    public string flurryKeyGooglePlay;
+    public string flurryKeyAmazon;
 
     private AndroidJavaObject plugin;
 
     public bool testMode;
+
+    public StoreVersion storeVersion;
 
     private bool m_isInit = false;
 
@@ -37,10 +40,24 @@ public class FlurryAnalytics : Singleton<FlurryAnalytics>
     {
         if (Debug.isDebugBuild)
         {
-            testMode = false;
+            testMode = true;
+        }
+        string finalKey = "";
+
+        switch (storeVersion)
+        {
+            case StoreVersion.AmazonStore:
+                finalKey = flurryKeyAmazon;
+                break;
+            case StoreVersion.GooglePlay:
+                finalKey = flurryKeyGooglePlay;
+                break;
+            case StoreVersion.disable:
+                finalKey = "";
+                break;
         }
 #if UNITY_ANDROID && !UNITY_EDITOR
-        plugin.Call("init", flurryKey, testMode);
+        plugin.Call("init", finalKey, testMode);
 #endif
         m_isInit = true;
     }
@@ -70,7 +87,7 @@ public class FlurryAnalytics : Singleton<FlurryAnalytics>
         if (m_isInit)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            plugin.Call("EndLogEvent", eventName, record);
+            plugin.Call("EndLogEvent", eventName);
 #endif
         }
     }
@@ -130,10 +147,51 @@ public class FlurryAnalytics : Singleton<FlurryAnalytics>
         /// </summary>
         /// <param name="javaObject">java object</param>
         /// <returns></returns>
-	    private static EventRecordStatus JavaObjectToEventRecordStatus(AndroidJavaObject javaObject)
+	    /*private static EventRecordStatus JavaObjectToEventRecordStatus(AndroidJavaObject javaObject)
         {
             return (EventRecordStatus) javaObject.Call<int>("ordinal");
-        }
+        }*/
 #endif
     #endregion
+}
+
+public enum StoreVersion
+{
+    GooglePlay, AmazonStore, disable
+}
+
+public class PluginSingleton<T> : MonoBehaviour where T : MonoBehaviour
+{
+    static T m_instance;
+
+    public static T Instance
+    {
+        get
+        {
+            if (m_instance == null)
+            {
+                m_instance = GameObject.FindObjectOfType<T>();
+
+                if (m_instance == null)
+                {
+                    GameObject singleton = new GameObject(typeof(T).Name);
+                    m_instance = singleton.AddComponent<T>();
+                }
+            }
+            return m_instance;
+        }
+    }
+
+    public virtual void Awake()
+    {
+        if (m_instance == null)
+        {
+            m_instance = this as T;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 }

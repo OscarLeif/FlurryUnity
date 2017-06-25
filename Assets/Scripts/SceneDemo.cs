@@ -30,7 +30,7 @@ public class SceneDemo : MonoBehaviour
         stringToEdit = GUI.TextField(new Rect(Screen.width * 0.55f, Screen.height * 0.1f, Screen.width * 0.4f, Screen.height * 0.15f), stringToEdit, 25);
         GUILayout.EndHorizontal();
 
-        if (GUI.Button(new Rect(Screen.width * 0.05f, Screen.height * 0.1f, Screen.width * 0.4f, Screen.height * 0.15f), "Set Log Event (Input Name) "))
+        if (GUI.Button(new Rect(Screen.width * 0.05f, Screen.height * 0.3f, Screen.width * 0.4f, Screen.height * 0.15f), "Set Log Event (Input Name) "))
         {
             FlurryAnalytics.Instance.LogEvent(stringToEdit);
         }
