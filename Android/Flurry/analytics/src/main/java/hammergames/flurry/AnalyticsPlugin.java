@@ -85,8 +85,8 @@ public class AnalyticsPlugin extends Application
         FlurryAgent.logEvent(eventName,hashMap,true);
     }
 
-    //Beging Log Event Duration
-    public void BegingLogEvent(String eventName, boolean timed)
+    //Begging Log Event Duration
+    public void BeggingLogEvent(String eventName, boolean timed)
     {
         FlurryAgent.logEvent(eventName, timed);
     }

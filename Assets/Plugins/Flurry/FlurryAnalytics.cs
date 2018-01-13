@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Flurry Object Only for Android
 /// </summary>
-public class FlurryAnalytics : PluginSingleton<FlurryAnalytics>
+public class FlurryAnalytics : MonoBehaviour
 {
     AndroidJavaClass _class;
     AndroidJavaObject instance { get { return _class.GetStatic<AndroidJavaObject>("instance"); } }
@@ -21,18 +21,44 @@ public class FlurryAnalytics : PluginSingleton<FlurryAnalytics>
 
     private bool m_isInit = false;
 
-    public override void Awake()
-    {
-        base.Awake();
+    private static FlurryAnalytics inst = null;
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        AndroidJavaClass jc = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
-        plugin = jc.CallStatic<AndroidJavaObject>("getInstance");
-#endif
+    public static FlurryAnalytics Inst
+    {
+        get
+        {
+            if(inst==null)
+            {
+                inst = GameObject.FindObjectOfType<FlurryAnalytics>();
+                if(inst == null)
+                {
+                    GameObject singleton = new GameObject(typeof(FlurryAnalytics).Name);
+                    inst = singleton.AddComponent<FlurryAnalytics>();
+                }
+            }
+            return inst;
+        }
+    }
+
+    public void Awake()
+    {
+        if(inst == null)
+        {
+            inst = Inst;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(base.gameObject);
+        }
     }
 
     private void Start()
     {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        AndroidJavaClass jc = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
+        plugin = jc.CallStatic<AndroidJavaObject>("getInstance");
+#endif
         Init();
     }
 
@@ -110,7 +136,6 @@ public class FlurryAnalytics : PluginSingleton<FlurryAnalytics>
 #endif
     }
 
-
     //Reciver Messages from the plugin
     //This should be called from Android
     public void OnAndroidEvent(string message)
@@ -160,38 +185,3 @@ public enum StoreVersion
     GooglePlay, AmazonStore, disable
 }
 
-public class PluginSingleton<T> : MonoBehaviour where T : MonoBehaviour
-{
-    static T m_instance;
-
-    public static T Instance
-    {
-        get
-        {
-            if (m_instance == null)
-            {
-                m_instance = GameObject.FindObjectOfType<T>();
-
-                if (m_instance == null)
-                {
-                    GameObject singleton = new GameObject(typeof(T).Name);
-                    m_instance = singleton.AddComponent<T>();
-                }
-            }
-            return m_instance;
-        }
-    }
-
-    public virtual void Awake()
-    {
-        if (m_instance == null)
-        {
-            m_instance = this as T;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-}
