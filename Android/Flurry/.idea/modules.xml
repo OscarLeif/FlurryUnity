@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Flurry.iml" filepath="$PROJECT_DIR$/Flurry.iml" />
+      <module fileurl="file://D:\UnityApps\Flurry-plugin-for-Unity-3D\Android\Flurry\Flurry.iml" filepath="D:\UnityApps\Flurry-plugin-for-Unity-3D\Android\Flurry\Flurry.iml" />
       <module fileurl="file://$PROJECT_DIR$/analytics/analytics.iml" filepath="$PROJECT_DIR$/analytics/analytics.iml" />
+      <module fileurl="file://D:\UnityApps\Flurry-plugin-for-Unity-3D\Android\Flurry\analytics\analytics.iml" filepath="D:\UnityApps\Flurry-plugin-for-Unity-3D\Android\Flurry\analytics\analytics.iml" />
     </modules>
   </component>
 </project>

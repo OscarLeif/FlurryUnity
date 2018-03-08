@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using JetBrains.Annotations;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,13 +8,15 @@ using UnityEngine;
 /// </summary>
 public class FlurryAnalytics : MonoBehaviour
 {
-    AndroidJavaClass _class;
-    AndroidJavaObject instance { get { return _class.GetStatic<AndroidJavaObject>("instance"); } }
+    public bool PluginEnable = false;
+
+    private AndroidJavaClass androidJavaClass;
+
+    private AndroidJavaObject javaObject { get { return androidJavaClass.GetStatic<AndroidJavaObject>("instance"); } }
 
     public string flurryKeyGooglePlay;
-    public string flurryKeyAmazon;
 
-    private AndroidJavaObject plugin;
+    public string flurryKeyAmazon;
 
     public bool testMode;
 
@@ -21,76 +24,126 @@ public class FlurryAnalytics : MonoBehaviour
 
     private bool m_isInit = false;
 
-    private static FlurryAnalytics inst = null;
+    #region Fields
 
+    public static bool Quitting { get; private set; }
+
+    [CanBeNull]
+    private static FlurryAnalytics _instance = null;
+
+    [SerializeField]
+    private bool _persistent = true;
+
+    [NotNull]
+    private static readonly object Lock = new object();
+
+    #endregion
+
+    #region Properties
+    [NotNull]
     public static FlurryAnalytics Inst
     {
         get
         {
-            if(inst==null)
+            if (Quitting)
             {
-                inst = GameObject.FindObjectOfType<FlurryAnalytics>();
-                if(inst == null)
-                {
-                    GameObject singleton = new GameObject(typeof(FlurryAnalytics).Name);
-                    inst = singleton.AddComponent<FlurryAnalytics>();
-                }
+                return null;
             }
-            return inst;
+            lock (Lock)
+            {
+                if (_instance != null)
+                {
+                    return _instance;
+                }
+                var instances = FindObjectsOfType<FlurryAnalytics>();
+                var count = instances.Length;
+                if (count > 0)
+                {
+                    if (count == 1)
+                    {
+                        return _instance = instances[0];
+                    }
+                    for (var i = 1; i < instances.Length; i++)
+                    {
+                        Destroy(instances[i]);
+                    }
+                    return _instance = instances[0];
+                }
+                return _instance = new GameObject(typeof(FlurryAnalytics).Name).AddComponent<FlurryAnalytics>();
+            }
         }
     }
+    #endregion
+
+    #region Methods
 
     public void Awake()
     {
-        if(inst == null)
+        if (_persistent)
         {
-            inst = Inst;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(base.gameObject);
+            DontDestroyOnLoad(gameObject);
         }
     }
 
     private void Start()
     {
+        if (PluginEnable)
+        {
 #if UNITY_ANDROID && !UNITY_EDITOR
         AndroidJavaClass jc = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
         plugin = jc.CallStatic<AndroidJavaObject>("getInstance");
 #endif
-        Init();
+            Init();
+        }
     }
+
+    private void OnApplicationQuit()
+    {
+        Quitting = true;
+    }
+
+    #endregion
+
+
+    #region Flurry Fields
+
+
+
+    #endregion
+    //Flurry Methods
 
     public void Init()
     {
-        if (Debug.isDebugBuild)
+        if (PluginEnable)
         {
-            testMode = true;
-        }
-        string finalKey = "";
+            if (Debug.isDebugBuild)
+            {
+                testMode = true;
+            }
+            string finalKey = "";
 
-        switch (storeVersion)
-        {
-            case StoreVersion.AmazonStore:
-                finalKey = flurryKeyAmazon;
-                break;
-            case StoreVersion.GooglePlay:
-                finalKey = flurryKeyGooglePlay;
-                break;
-            case StoreVersion.disable:
-                finalKey = "";
-                break;
-        }
+            switch (storeVersion)
+            {
+                case StoreVersion.AmazonStore:
+                    finalKey = flurryKeyAmazon;
+                    break;
+                case StoreVersion.GooglePlay:
+                    finalKey = flurryKeyGooglePlay;
+                    break;
+                case StoreVersion.disable:
+                    finalKey = "";
+                    break;
+            }
 #if UNITY_ANDROID && !UNITY_EDITOR
         plugin.Call("init", finalKey, testMode);
 #endif
-        m_isInit = true;
+            m_isInit = true;
+        }
     }
 
     public void LogEvent(string eventName)
     {
-        if (m_isInit)
+        if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             plugin.Call("LogEvent", eventName);
@@ -100,7 +153,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     public void BeginLogEvent(string eventName, bool record)
     {
-        if (m_isInit)
+        if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             plugin.Call("BegingLogEvent", eventName, record);
@@ -110,7 +163,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     public void EndLogEvent(string eventName)
     {
-        if (m_isInit)
+        if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             plugin.Call("EndLogEvent", eventName);
@@ -120,7 +173,8 @@ public class FlurryAnalytics : MonoBehaviour
 
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
-
+        if (PluginEnable)
+        {
 #if UNITY_ANDROID && !UNITY_EDITOR
     using (var hashMap = DictionaryToJavaHashMap(parameters))
 	    {
@@ -134,6 +188,7 @@ public class FlurryAnalytics : MonoBehaviour
             }
 		}
 #endif
+        }
     }
 
     //Reciver Messages from the plugin
