@@ -8,93 +8,66 @@ using UnityEngine;
 /// </summary>
 public class FlurryAnalytics : MonoBehaviour
 {
-    public bool PluginEnable = false;
-
-    private AndroidJavaClass androidJavaClass;
-
-    private AndroidJavaObject javaObject { get { return androidJavaClass.GetStatic<AndroidJavaObject>("instance"); } }
-
-    public string flurryKeyGooglePlay;
-
-    public string flurryKeyAmazon;
-
-    public bool testMode;
-
-    public StoreVersion storeVersion;
-
-    private bool m_isInit = false;
-
     #region Fields
 
-    public static bool Quitting { get; private set; }
-
     [CanBeNull]
-    private static FlurryAnalytics _instance = null;
-
-    [SerializeField]
-    private bool _persistent = true;
+    private static FlurryAnalytics _instance;
 
     [NotNull]
     private static readonly object Lock = new object();
 
+    [SerializeField]
+    private bool _persistent = true;
+
+    public static bool Quitting { get; private set; }
+
     #endregion
 
-    #region Properties
+    #region  Properties
+
     [NotNull]
-    public static FlurryAnalytics Inst
+    public static FlurryAnalytics Instance
     {
         get
         {
             if (Quitting)
             {
+                Debug.LogWarning(typeof(FlurryAnalytics).Name + " Instance will not be returned because the application is quitting.");
+                // ReSharper disable once AssignNullToNotNullAttribute
                 return null;
             }
             lock (Lock)
             {
                 if (_instance != null)
-                {
                     return _instance;
-                }
                 var instances = FindObjectsOfType<FlurryAnalytics>();
                 var count = instances.Length;
                 if (count > 0)
                 {
                     if (count == 1)
-                    {
                         return _instance = instances[0];
-                    }
+                    Debug.LogWarning(typeof(FlurryAnalytics).Name + " There should never be more than one {nameof(Singleton)} of type {typeof(T)} in the scene, but {count} were found. The first instance found will be used, and all others will be destroyed.");
                     for (var i = 1; i < instances.Length; i++)
-                    {
                         Destroy(instances[i]);
-                    }
                     return _instance = instances[0];
                 }
+
+                Debug.Log(typeof(FlurryAnalytics).Name + "An instance is needed in the scene and no existing instances were found, so a new instance will be created.");
                 return _instance = new GameObject(typeof(FlurryAnalytics).Name).AddComponent<FlurryAnalytics>();
             }
         }
     }
     #endregion
 
-    #region Methods
+    #region Monobehaviour Methods
 
-    public void Awake()
+    private void Awake()
     {
         if (_persistent)
         {
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(this.gameObject);
         }
-    }
-
-    private void Start()
-    {
-        if (PluginEnable)
-        {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        AndroidJavaClass jc = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
-        plugin = jc.CallStatic<AndroidJavaObject>("getInstance");
-#endif
-            Init();
-        }
+        this.Init();
     }
 
     private void OnApplicationQuit()
@@ -104,49 +77,63 @@ public class FlurryAnalytics : MonoBehaviour
 
     #endregion
 
-
     #region Flurry Fields
 
+    public bool PluginEnable = false;
 
+    private AndroidJavaClass _javaClass;
+
+    private AndroidJavaObject _javaObject;
+
+    private bool m_isInit = false;
+
+    private bool isTestMode = false;
+
+    public string flurryKeyAmazon;
+
+    public string flurryKeyGoogle;
+
+    public StoreVersion storeVersion;
 
     #endregion
-    //Flurry Methods
 
-    public void Init()
+    #region Flurry Methods
+
+    private void Init()
     {
+        string finalKey = "";//TODO Clean up
         if (PluginEnable)
         {
             if (Debug.isDebugBuild)
             {
-                testMode = true;
+                this.isTestMode = true;
             }
-            string finalKey = "";
-
             switch (storeVersion)
             {
                 case StoreVersion.AmazonStore:
-                    finalKey = flurryKeyAmazon;
+                    finalKey = this.flurryKeyAmazon;
                     break;
                 case StoreVersion.GooglePlay:
-                    finalKey = flurryKeyGooglePlay;
+                    finalKey = this.flurryKeyGoogle;
                     break;
-                case StoreVersion.disable:
-                    finalKey = "";
+                default:
+                    Debug.Log("Probably is Test Mode or Key store is not setup");
                     break;
             }
-#if UNITY_ANDROID && !UNITY_EDITOR
-        plugin.Call("init", finalKey, testMode);
-#endif
-            m_isInit = true;
+
+            this._javaClass = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
+            this._javaObject = _javaClass.CallStatic<AndroidJavaObject>("getInstance");
+            this._javaObject.Call("init", finalKey, isTestMode);
         }
+
     }
 
     public void LogEvent(string eventName)
     {
         if (PluginEnable && m_isInit)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            plugin.Call("LogEvent", eventName);
+#if UNITY_ANDROID 
+            _javaObject.Call("LogEvent", eventName);
 #endif
         }
     }
@@ -155,8 +142,8 @@ public class FlurryAnalytics : MonoBehaviour
     {
         if (PluginEnable && m_isInit)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            plugin.Call("BegingLogEvent", eventName, record);
+#if UNITY_ANDROID 
+            _javaObject.Call("BegingLogEvent", eventName, record);
 #endif
         }
     }
@@ -165,78 +152,74 @@ public class FlurryAnalytics : MonoBehaviour
     {
         if (PluginEnable && m_isInit)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            plugin.Call("EndLogEvent", eventName);
+#if UNITY_ANDROID 
+            _javaObject.Call("EndLogEvent", eventName);
 #endif
         }
     }
 
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
-        if (PluginEnable)
+        if (PluginEnable && m_isInit)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-    using (var hashMap = DictionaryToJavaHashMap(parameters))
-	    {
-            if(record)
+#if UNITY_ANDROID
+            using (var hashMap = DictionaryToJavaHashMap(parameters))
             {
-                plugin.Call("SetLogEventRecord", eventName, hashMap);
+                if (record)
+                {
+                    _javaObject.Call("SetLogEventRecord", eventName, hashMap);
+                }
+                else
+                {
+                    _javaObject.Call("SetLogEvent", eventName, hashMap);
+                }
             }
-            else
-            {
-                plugin.Call("SetLogEvent", eventName, hashMap);
-            }
-		}
 #endif
         }
+
     }
 
-    //Reciver Messages from the plugin
-    //This should be called from Android
-    public void OnAndroidEvent(string message)
+    #endregion
+
+    #region Helpers
+
+#if UNITY_ANDROID
+    /// <summary>
+    /// Converts Dictionary<string, string> to java HashMap object
+    /// </summary>
+    public static AndroidJavaObject DictionaryToJavaHashMap(Dictionary<string, string> dictionary)
     {
-        Debug.Log(message);
-    }
+        var javaObject = new AndroidJavaObject("java.util.HashMap");
+        var put = AndroidJNIHelper.GetMethodID(javaObject.GetRawClass(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
 
-    #region [Helpers]
-#if UNITY_ANDROID && !UNITY_EDITOR
-		/// <summary>
-		/// Converts Dictionary<string, string> to java HashMap object
-		/// </summary>
-		private static AndroidJavaObject DictionaryToJavaHashMap(Dictionary<string, string> dictionary)
-		{
-			var javaObject = new AndroidJavaObject("java.util.HashMap");
-			var put = AndroidJNIHelper.GetMethodID(javaObject.GetRawClass(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-				
-			foreach (KeyValuePair<string, string> entry in dictionary)
-			{
-				using (var key = new AndroidJavaObject("java.lang.String", entry.Key))
-				{
-					using (var value = new AndroidJavaObject("java.lang.String", entry.Value))
-					{
-						AndroidJNI.CallObjectMethod(javaObject.GetRawObject(), put, AndroidJNIHelper.CreateJNIArgArray(new object[] { key, value }));
-					}
-				}
-			}
-
-		    return javaObject;
-		}
-
-        /// <summary>
-        /// Converts java EventRecordStatus to EventRecordStatus
-        /// </summary>
-        /// <param name="javaObject">java object</param>
-        /// <returns></returns>
-	    /*private static EventRecordStatus JavaObjectToEventRecordStatus(AndroidJavaObject javaObject)
+        foreach (KeyValuePair<string, string> entry in dictionary)
         {
-            return (EventRecordStatus) javaObject.Call<int>("ordinal");
-        }*/
+            using (var key = new AndroidJavaObject("java.lang.String", entry.Key))
+            {
+                using (var value = new AndroidJavaObject("java.lang.String", entry.Value))
+                {
+                    AndroidJNI.CallObjectMethod(javaObject.GetRawObject(), put, AndroidJNIHelper.CreateJNIArgArray(new object[] { key, value }));
+                }
+            }
+        }
+        return javaObject;
+    }
 #endif
+    /// <summary>
+    /// Converts java EventRecordStatus to EventRecordStatus
+    /// </summary>
+    /// <param name="javaObject">java object</param>
+    /// <returns></returns>
+    /*private static EventRecordStatus JavaObjectToEventRecordStatus(AndroidJavaObject javaObject)
+    {
+        return (EventRecordStatus) javaObject.Call<int>("ordinal");
+    }*/
+
     #endregion
 }
+
 
 public enum StoreVersion
 {
     GooglePlay, AmazonStore, disable
 }
-
