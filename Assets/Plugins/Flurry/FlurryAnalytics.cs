@@ -67,7 +67,7 @@ public class FlurryAnalytics : MonoBehaviour
         {
             DontDestroyOnLoad(this.gameObject);
         }
-        this.Init();
+        this.Setup();
     }
 
     private void OnApplicationQuit()
@@ -99,7 +99,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     #region Flurry Methods
 
-    private void Init()
+    private void Setup()
     {
         string finalKey = "";//TODO Clean up
         if (PluginEnable)
@@ -121,9 +121,8 @@ public class FlurryAnalytics : MonoBehaviour
                     break;
             }
 
-            this._javaClass = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
-            this._javaObject = _javaClass.CallStatic<AndroidJavaObject>("getInstance");
-            this._javaObject.Call("init", finalKey, isTestMode);
+            this._javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
+            this._javaObject = _javaClass.CallStatic<AndroidJavaObject>("start", this.gameObject.name, finalKey, isTestMode);
         }
 
     }
@@ -133,31 +132,32 @@ public class FlurryAnalytics : MonoBehaviour
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("LogEvent", eventName);
+            _javaObject.Call("logEvent", eventName);
 #endif
         }
     }
 
-    public void BeginLogEvent(string eventName, bool record)
+    public void StartLogEvent(string eventName, bool recorded)
     {
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("BegingLogEvent", eventName, record);
+            _javaObject.Call("startLogEvent", eventName, recorded);
 #endif
         }
     }
 
-    public void EndLogEvent(string eventName)
+    public void EndTimeEvent(string eventName)
     {
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("EndLogEvent", eventName);
+            _javaObject.Call("endTimeEvent", eventName);
 #endif
         }
     }
 
+    //Not Completed
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
         if (PluginEnable && m_isInit)
