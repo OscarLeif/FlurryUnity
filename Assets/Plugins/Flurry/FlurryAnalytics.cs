@@ -99,7 +99,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     #region Flurry Methods
 
-    private void Setup()
+    public void Setup()
     {
         string finalKey = "";//TODO Clean up
         if (PluginEnable)
