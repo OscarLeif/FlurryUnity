@@ -121,7 +121,7 @@ public class FlurryAnalytics : MonoBehaviour
                     break;
             }
 
-            this._javaClass = new AndroidJavaClass("hammergames.flurry.AnalyticsPlugin");
+            this._javaClass = new AndroidJavaClass("ata.plugins.AnalyticsPlugin");
             this._javaObject = _javaClass.CallStatic<AndroidJavaObject>("getInstance");
             this._javaObject.Call("init", finalKey, isTestMode);
         }

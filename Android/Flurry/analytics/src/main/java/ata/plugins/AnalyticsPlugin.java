@@ -1,4 +1,4 @@
-package hammergames.flurry;
+package ata.plugins;
 
 import android.app.Activity;
 import android.app.Application;
@@ -9,9 +9,7 @@ import android.util.Log;
 import com.flurry.android.FlurryAgent;
 import com.unity3d.player.UnityPlayer;
 
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by OscarLeif on 5/6/2017.
