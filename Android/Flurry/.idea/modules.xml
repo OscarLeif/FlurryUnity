@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Android-Flurry.iml" filepath="$PROJECT_DIR$/Android-Flurry.iml" />
       <module fileurl="file://$PROJECT_DIR$/Flurry.iml" filepath="$PROJECT_DIR$/Flurry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/analytics/Flurry-analytics.iml" filepath="$PROJECT_DIR$/analytics/Flurry-analytics.iml" />
       <module fileurl="file://$PROJECT_DIR$/analytics/analytics.iml" filepath="$PROJECT_DIR$/analytics/analytics.iml" />
     </modules>
   </component>
