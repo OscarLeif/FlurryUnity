@@ -83,7 +83,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     private AndroidJavaClass _javaClass;
 
-    private AndroidJavaObject _javaObject;
+    private AndroidJavaObject _javaObject { get { return _javaClass.GetStatic<AndroidJavaObject>("singleton"); } }
 
     private bool m_isInit = false;
 
@@ -122,8 +122,7 @@ public class FlurryAnalytics : MonoBehaviour
             }
 
             this._javaClass = new AndroidJavaClass("ata.plugins.AnalyticsPlugin");
-            this._javaObject = _javaClass.CallStatic<AndroidJavaObject>("getInstance");
-            this._javaObject.Call("init", finalKey, isTestMode);
+            this._javaClass.CallStatic("start", this.gameObject.name, finalKey);
         }
 
     }
@@ -133,31 +132,32 @@ public class FlurryAnalytics : MonoBehaviour
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("LogEvent", eventName);
+            _javaObject.Call("logEvent", eventName);
 #endif
         }
     }
 
-    public void BeginLogEvent(string eventName, bool record)
+    public void logEvent(string eventName, bool record)
     {
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("BegingLogEvent", eventName, record);
+            _javaObject.Call("logEvent", eventName, record);
 #endif
         }
     }
 
-    public void EndLogEvent(string eventName)
+    public void endTimedEvent(string eventName)
     {
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("EndLogEvent", eventName);
+            _javaObject.Call("endTimedEvent", eventName);
 #endif
         }
     }
 
+    // TODO Need to completed how to send the dicctionary to java
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
         if (PluginEnable && m_isInit)
