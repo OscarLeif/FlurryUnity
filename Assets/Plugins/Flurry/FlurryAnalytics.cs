@@ -123,6 +123,7 @@ public class FlurryAnalytics : MonoBehaviour
 
             this._javaClass = new AndroidJavaClass("ata.plugins.AnalyticsPlugin");
             this._javaClass.CallStatic("start", this.gameObject.name, finalKey);
+            this.m_isInit = true;
         }
 
     }
