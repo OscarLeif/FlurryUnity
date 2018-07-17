@@ -11,13 +11,38 @@ So we need the Flurry Analatycs Jar File, while this have first an Android Studi
 
 # How to use 
 
-Sorry for now I'm still testing.
-My idea is just to implement less files possible (of course that's is the purpose of the Android Studio Project) 
-So only import a package and using a prefab will be good.
+This is a plugin for Android Devices, this is just a wrapper from Java Code, using this plugin should work fine for multiple platforms since it will just compile on Android platform.
 
-Why don't support IOS ?
+**Important:** Unity Android must compile a project using **Build System: Internal**  
+
+
+**1.** First you will need to **Import the FlurryAnalytics.aar** file this one is created  using the Android Studio Project and also you will to import the **FlurryAnalytics.cs** in a little ans short future just import the unity package (In Progress).
+
+**2.** Create an Unity Object and add the Component Flurry Analytics this will be a Singleton object. In this component you can set 2 analytics Keys one for Google play store and a second one for another app store in this case I use Amazon App store.
+
+## Send Log Events 
+
+Flurry Analytics service have Simple Log Event, Recorded Log Events, I don't remember the las one, need to check this.
+
+**1.Simple Log Event just call**
+		
+
+    FlurryAnalytics.Instance.LogEvent("Game Begins");
+
+**2.Recorded Log Event**
+
+	//Warning If you set boolean value to false it will be Simple Log Event
+    FlurryAnalytics.Instance.StartLogEvent("Game Begins", true);
+
+3.TODO Complete the last event feature
+
+    //Need to complete this
+
+ 
+
+# Why don't support IOS ?
 
 Right now I don't have any IOS device so it's not possible for me doing this.
 Sorry 
 
-Oscar Leif
+## Oscar Leif
