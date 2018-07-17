@@ -18,6 +18,10 @@ This is a plugin for Android Devices, this is just a wrapper from Java Code, usi
 
 **1.** First you will need to **Import the FlurryAnalytics.aar** file this one is created  using the Android Studio Project and also you will to import the **FlurryAnalytics.cs** in a little ans short future just import the unity package (In Progress).
 
+<<<<<<< HEAD
+**2.** Create an Unity Object and add the Component Flurry Analytics this will be a Singleton object. In this component you can set 2 analytics Keys one for Google play store and a second one for another app store in this case I use Amazon App store.
+
+=======
 **2.** Create an Unity Object and add the Component Flurry Analytics this will be a Singleton object
 In this component you can set 2 analytics Keys one for Google play store and a second one for another app store in this case I use Amazon App store.
 
@@ -28,6 +32,7 @@ In this component you can set 2 analytics Keys one for Google play store and a s
 			//Initialize the Flurry Analytics Service
     		FlurryAnalytics.Instance.Setup();
     	}
+>>>>>>> master
 ## Send Log Events 
 
 Flurry Analytics service have Simple Log Event, Recorded Log Events, I don't remember the las one, need to check this.
@@ -53,4 +58,8 @@ Flurry Analytics service have Simple Log Event, Recorded Log Events, I don't rem
 Right now I don't have any IOS device so it's not possible for me doing this.
 Sorry 
 
+<<<<<<< HEAD
 ## Oscar Leif
+=======
+## Oscar Leif
+>>>>>>> master
