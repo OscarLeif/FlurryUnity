@@ -117,18 +117,12 @@ public class FlurryAnalytics : MonoBehaviour
                     finalKey = this.flurryKeyGoogle;
                     break;
                 default:
-                    Debug.Log("Probably is Test Mode or Key store is not setup");
+                    Debug.Log("Probably is Test Mode or Key store is empty");
                     break;
             }
-
-<<<<<<< HEAD
             this._javaClass = new AndroidJavaClass("ata.plugins.AnalyticsPlugin");
-            this._javaClass.CallStatic("start", this.gameObject.name, finalKey);
+            this._javaClass.CallStatic<AndroidJavaObject>("start", this.gameObject.name, finalKey, isTestMode);
             this.m_isInit = true;
-=======
-            this._javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
-            this._javaObject = _javaClass.CallStatic<AndroidJavaObject>("start", this.gameObject.name, finalKey, isTestMode);
->>>>>>> master
         }
 
     }
@@ -143,47 +137,29 @@ public class FlurryAnalytics : MonoBehaviour
         }
     }
 
-<<<<<<< HEAD
-    public void logEvent(string eventName, bool record)
-=======
     public void StartLogEvent(string eventName, bool recorded)
->>>>>>> master
+
     {
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-<<<<<<< HEAD
-            _javaObject.Call("logEvent", eventName, record);
-=======
             _javaObject.Call("startLogEvent", eventName, recorded);
->>>>>>> master
 #endif
         }
     }
 
-<<<<<<< HEAD
-    public void endTimedEvent(string eventName)
-=======
+
     public void EndTimeEvent(string eventName)
->>>>>>> master
+
     {
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-<<<<<<< HEAD
-            _javaObject.Call("endTimedEvent", eventName);
-=======
             _javaObject.Call("endTimeEvent", eventName);
->>>>>>> master
 #endif
         }
     }
 
-<<<<<<< HEAD
-    // TODO Need to completed how to send the dicctionary to java
-=======
-    //Not Completed
->>>>>>> master
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
         if (PluginEnable && m_isInit)
