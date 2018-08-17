@@ -160,6 +160,8 @@ public class FlurryAnalytics : MonoBehaviour
         }
     }
 
+    //TODO completed this event
+    //WARNING NOT Impletemented.
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
         if (PluginEnable && m_isInit)
