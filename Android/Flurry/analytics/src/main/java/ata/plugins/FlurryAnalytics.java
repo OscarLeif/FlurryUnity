@@ -18,26 +18,26 @@ import static android.util.Log.VERBOSE;
  * Created by OscarLeif on 5/6/2017.
  */
 
-public class AnalyticsPlugin extends Fragment
+public class FlurryAnalytics extends Fragment
 {
     //Constants
     public static final String TAG   = "Flurry Analytics";
     private String FLURRY_API_KEY = "";
 
-    //singleton instance
-    public static AnalyticsPlugin singleton;
+    //instance instance
+    public static FlurryAnalytics instance;
 
     // Unity context.
     private String gameObjectName;
 
-    public static void start(String gameobjectName, String flurryKey)
+    public static void start(String gameobjectName)
     {
         // Instantiate and add Unity Player Activity;
-        singleton = new AnalyticsPlugin();
-        singleton.gameObjectName = gameobjectName;
-        singleton.FLURRY_API_KEY = flurryKey;
+        instance = new FlurryAnalytics();
+        instance.gameObjectName = gameobjectName;
+        instance.FLURRY_API_KEY = gameobjectName;
         Log.d(TAG, "start: Method Called");
-        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(singleton, AnalyticsPlugin.TAG).commit();
+        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.TAG).commit();
     }
 
     @Override

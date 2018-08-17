@@ -83,7 +83,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     private AndroidJavaClass _javaClass;
 
-    private AndroidJavaObject _javaObject { get { return _javaClass.GetStatic<AndroidJavaObject>("singleton"); } }
+    private AndroidJavaObject _javaObject { get { return _javaClass.GetStatic<AndroidJavaObject>("instance"); } }
 
     private bool m_isInit = false;
 
@@ -120,8 +120,8 @@ public class FlurryAnalytics : MonoBehaviour
                     Debug.Log("Probably is Test Mode or Key store is empty");
                     break;
             }
-            this._javaClass = new AndroidJavaClass("ata.plugins.AnalyticsPlugin");
-            this._javaClass.CallStatic<AndroidJavaObject>("start", this.gameObject.name, finalKey, isTestMode);
+            _javaClass= new AndroidJavaClass("ata.plugins.FlurryAnalytics");
+            _javaClass.CallStatic("start", finalKey);
             this.m_isInit = true;
         }
 
@@ -180,7 +180,6 @@ public class FlurryAnalytics : MonoBehaviour
             }
 #endif
         }
-
     }
 
     #endregion
