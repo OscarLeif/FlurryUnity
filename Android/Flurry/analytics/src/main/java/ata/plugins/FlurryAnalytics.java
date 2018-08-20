@@ -1,7 +1,5 @@
 package ata.plugins;
 
-import android.app.Activity;
-import android.app.Application;
 import android.app.Fragment;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -9,10 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
+import com.flurry.android.FlurryAgentListener;
 import com.unity3d.player.UnityPlayer;
 
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Map;
 
 import static android.util.Log.VERBOSE;
@@ -23,69 +20,59 @@ import static android.util.Log.VERBOSE;
 
 public class FlurryAnalytics extends Fragment
 {
-    // Constants
-    public static final String TAG="Flurry_Analytics";
+    //Constants
+    public static final String TAG   = "Flurry Analytics";
+    private String FLURRY_API_KEY = "";
 
-    //Singleton instance
+    //instance instance
     public static FlurryAnalytics instance;
 
-    //Unity context
-
+    // Unity context.
     private String gameObjectName;
 
-    //flurry fields
-
-    private String flurryKey;
-
-    private boolean isTestMode;
-
-    private String versionName;
-
-    public static void start(String gameObjectName, String flurryKey, boolean testMode)
+    public static void start(String gameobjectName)
     {
-        // Instantiate and add to Unity Player Activity.
+        // Instantiate and add Unity Player Activity;
         instance = new FlurryAnalytics();
-        instance.gameObjectName = gameObjectName;
-        instance.flurryKey = flurryKey;
-        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance,FlurryAnalytics.TAG).commit();
+        instance.gameObjectName = gameobjectName;
+        instance.FLURRY_API_KEY = gameobjectName;
+        Log.d(TAG, "start: Method Called");
+        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.TAG).commit();
     }
-
-    //region Fragment lifeCycle
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-
         new FlurryAgent.Builder()
                 .withLogEnabled(true)
                 .withCaptureUncaughtExceptions(true)
                 .withContinueSessionMillis(10000)
-                .withLogLevel(VERBOSE).build(UnityPlayer.currentActivity, this.flurryKey);
-
-        PackageInfo pInfo;
+                .withLogLevel(VERBOSE)
+                .withListener(new FlurryAgentListener()
+                {
+                    @Override
+                    public void onSessionStarted()
+                    {
+                        Log.d(TAG, "onSessionStarted: Flurry is working");
+                    }
+                })
+                .build(UnityPlayer.currentActivity, FLURRY_API_KEY);
+        //get version name
         try
         {
-            pInfo = UnityPlayer.currentActivity.getPackageManager().getPackageInfo(UnityPlayer.currentActivity.getPackageName(), 0);
-            versionName = pInfo.versionName;
-        }
-        catch (PackageManager.NameNotFoundException e)
-        {
-            // TODO Auto-generated catch block
+            PackageInfo pInfo = UnityPlayer.currentActivity
+                    .getPackageManager()
+                    .getPackageInfo(UnityPlayer.currentActivity.getPackageName(), 0);
+            String version = pInfo.versionName;
+            FlurryAgent.setVersionName(version);
+            Log.d(TAG, "onCreate: versionName: " + version);
+        } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-
-        FlurryAgent.setVersionName(versionName);
-        //Print (Get) Release version
-        Log.i(TAG, FlurryAgent.getReleaseVersion());
-    }
-
-    @Override
-    public void onStart()
-    {
-        super.onStart();
         FlurryAgent.onStartSession(UnityPlayer.currentActivity);
+        Log.d(TAG, "onCreate: Method Called");
+        Log.d(TAG, "onCreate: KEY :" + FLURRY_API_KEY);
     }
 
     @Override
@@ -95,36 +82,38 @@ public class FlurryAnalytics extends Fragment
         FlurryAgent.onEndSession(UnityPlayer.currentActivity);
     }
 
-    //endregion
-
-    // flurry Analytics functions
-
     public void logEvent(String eventName)
     {
         FlurryAgent.logEvent(eventName);
     }
 
-    public void startLogEvent(String eventName, boolean recorded)
+    public void logEvent(String eventName, boolean timed)
     {
-        if(recorded)
-        {
-            FlurryAgent.logEvent(eventName, recorded);
-        }
-        else
-        {
-            this.logEvent(eventName);
-        }
+        FlurryAgent.logEvent(eventName,timed);
     }
 
-    public void endTimeEvent(String eventName)
+    public void logEvent(String eventName, Map<String, String> eventParams, boolean timed )
+    {
+        FlurryAgent.logEvent(eventName, eventParams, timed);
+    }
+
+    public void endTimedEvent(String eventName)
     {
         FlurryAgent.endTimedEvent(eventName);
     }
-    //endregion
 
-    public void sendMessageToUnity()
+    public void endTimedEvent(String eventName, Map<String,String> eventParams)
     {
-        //(unityObjectName, methodName from previous Object, paramether string from previous method name)
-        //UnityPlayer.UnitySendMessage( UnityObjName, "OnAndroidEvent", "amazon-interstitial-dismiss");
+        FlurryAgent.endTimedEvent(eventName,eventParams);
     }
+
+    // region Utilities
+
+    private void SendUnityMessage(String methodName, String parameter)
+    {
+        Log.i(TAG, TAG+"SendUnityMessage(`"+methodName+"`, `"+parameter+"`)");
+        UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);
+    }
+
+// endregion
 }

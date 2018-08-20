@@ -48,8 +48,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1334603959557376}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 833c2d8be11fedf4aabc85db40a4df0c, type: 3}
+  m_Script: {fileID: 11500000, guid: 5bdb173c094b7fc4d9413ca8a9b03dbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flurryKey: 
-  testMode: 0
+  _persistent: 1
+  PluginEnable: 0
+  flurryKeyAmazon: 
+  flurryKeyGoogle: 
+  storeVersion: 0
