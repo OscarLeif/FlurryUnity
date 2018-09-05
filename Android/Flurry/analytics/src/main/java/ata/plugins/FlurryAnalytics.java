@@ -8,8 +8,10 @@ import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryAgentListener;
+import com.flurry.android.FlurryConsent;
 import com.unity3d.player.UnityPlayer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static android.util.Log.VERBOSE;
@@ -43,23 +45,32 @@ public class FlurryAnalytics extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        Map<String, String> consentStrings = new HashMap<>();
+
+        consentStrings.put("IAB", "yes");
+
         super.onCreate(savedInstanceState);
+        if(UnityPlayer.currentActivity == null)
+        {
+            Log.d(TAG, "Warning Current Activity is null");
+        }
         new FlurryAgent.Builder()
                 .withLogEnabled(true)
                 .withCaptureUncaughtExceptions(true)
                 .withContinueSessionMillis(10000)
                 .withLogLevel(VERBOSE)
-                .withListener(new FlurryAgentListener()
+                .withConsent(new FlurryConsent(true, consentStrings))
+                /*.withListener(new FlurryAgentListener()
                 {
                     @Override
                     public void onSessionStarted()
                     {
                         Log.d(TAG, "onSessionStarted: Flurry is working");
                     }
-                })
+                })*/
                 .build(UnityPlayer.currentActivity, FLURRY_API_KEY);
         //get version name
-        try
+        /*try
         {
             PackageInfo pInfo = UnityPlayer.currentActivity
                     .getPackageManager()
@@ -69,7 +80,7 @@ public class FlurryAnalytics extends Fragment
             Log.d(TAG, "onCreate: versionName: " + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-        }
+        }*/
         FlurryAgent.onStartSession(UnityPlayer.currentActivity);
         Log.d(TAG, "onCreate: Method Called");
         Log.d(TAG, "onCreate: KEY :" + FLURRY_API_KEY);
