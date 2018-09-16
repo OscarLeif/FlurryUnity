@@ -143,7 +143,7 @@ public class FlurryAnalytics : MonoBehaviour
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("startLogEvent", eventName, recorded);
+            _javaObject.Call("logEvent", eventName, recorded);
 #endif
         }
     }
@@ -155,7 +155,7 @@ public class FlurryAnalytics : MonoBehaviour
         if (PluginEnable && m_isInit)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("endTimeEvent", eventName);
+            _javaObject.Call("endTimedEvent", eventName);
 #endif
         }
     }
@@ -171,11 +171,11 @@ public class FlurryAnalytics : MonoBehaviour
             {
                 if (record)
                 {
-                    _javaObject.Call("SetLogEventRecord", eventName, hashMap);
+                    _javaObject.Call("logEvent", eventName, hashMap);
                 }
                 else
                 {
-                    _javaObject.Call("SetLogEvent", eventName, hashMap);
+                    _javaObject.Call("logEvent", eventName, hashMap);
                 }
             }
 #endif
