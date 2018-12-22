@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
-import com.flurry.android.FlurryAgentListener;
-import com.flurry.android.FlurryConsent;
 import com.unity3d.player.UnityPlayer;
 
 import java.util.HashMap;
@@ -23,8 +21,12 @@ import static android.util.Log.VERBOSE;
 public class FlurryAnalytics extends Fragment
 {
     //Constants
-    public static final String TAG   = "Flurry Analytics";
-    private String FLURRY_API_KEY = "";
+    public static final String LOG_TAG = "Flurry Analytics";
+    private String FLURRY_API_KEY = "NULL"; //Is set as empty the project crash
+
+    //The name of the Unity game object that calls Flurry
+    //Used for the Listener information form java side.
+    private final static String UnityGameObjectName = "Flurry";
 
     //instance instance
     public static FlurryAnalytics instance;
@@ -32,14 +34,14 @@ public class FlurryAnalytics extends Fragment
     // Unity context.
     private String gameObjectName;
 
-    public static void start(String gameobjectName)
+    public static void start(String flurryKey)
     {
         // Instantiate and add Unity Player Activity;
         instance = new FlurryAnalytics();
-        instance.gameObjectName = gameobjectName;
-        instance.FLURRY_API_KEY = gameobjectName;
-        Log.d(TAG, "start: Method Called");
-        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.TAG).commit();
+        instance.gameObjectName = "Flurry";
+        instance.FLURRY_API_KEY = flurryKey;
+        Log.d(LOG_TAG, "start: Method Called");
+        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
     }
 
     @Override
@@ -47,43 +49,43 @@ public class FlurryAnalytics extends Fragment
     {
         Map<String, String> consentStrings = new HashMap<>();
 
-        consentStrings.put("IAB", "yes");
+        //consentStrings.put("IAB", "yes");
 
         super.onCreate(savedInstanceState);
         if(UnityPlayer.currentActivity == null)
         {
-            Log.d(TAG, "Warning Current Activity is null");
+            Log.d(LOG_TAG, "Warning Current Activity is null");
         }
         new FlurryAgent.Builder()
                 .withLogEnabled(true)
                 .withCaptureUncaughtExceptions(true)
                 .withContinueSessionMillis(10000)
                 .withLogLevel(VERBOSE)
-                .withConsent(new FlurryConsent(true, consentStrings))
+                //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
                 /*.withListener(new FlurryAgentListener()
                 {
                     @Override
                     public void onSessionStarted()
                     {
-                        Log.d(TAG, "onSessionStarted: Flurry is working");
+                        Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                     }
                 })*/
                 .build(UnityPlayer.currentActivity, FLURRY_API_KEY);
         //get version name
-        /*try
+        try
         {
             PackageInfo pInfo = UnityPlayer.currentActivity
                     .getPackageManager()
                     .getPackageInfo(UnityPlayer.currentActivity.getPackageName(), 0);
             String version = pInfo.versionName;
             FlurryAgent.setVersionName(version);
-            Log.d(TAG, "onCreate: versionName: " + version);
+            Log.d(LOG_TAG, "onCreate: versionName: " + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-        }*/
+        }
         FlurryAgent.onStartSession(UnityPlayer.currentActivity);
-        Log.d(TAG, "onCreate: Method Called");
-        Log.d(TAG, "onCreate: KEY :" + FLURRY_API_KEY);
+        Log.d(LOG_TAG, "onCreate: Method Called");
+        Log.d(LOG_TAG, "onCreate: KEY :" + FLURRY_API_KEY);
     }
 
     @Override
@@ -122,7 +124,7 @@ public class FlurryAnalytics extends Fragment
 
     private void SendUnityMessage(String methodName, String parameter)
     {
-        Log.i(TAG, TAG+"SendUnityMessage(`"+methodName+"`, `"+parameter+"`)");
+        Log.i(LOG_TAG, LOG_TAG +"SendUnityMessage(`"+methodName+"`, `"+parameter+"`)");
         UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);
     }
 
