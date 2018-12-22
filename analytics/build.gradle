@@ -1,0 +1,89 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes
+            {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories
+        {
+            jcenter()
+        }
+
+dependencies {
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    // Avoid redundant Unity Player in final application APK
+    compileOnly files('./libs/UnityPlayer.jar')
+    implementation files('./libs/flurryAnalytics_11.4.0.jar')
+}
+
+android.libraryVariants.all { variant ->
+
+    // Task names.
+    String variantName = "${variant.name.capitalize()}"; // Like 'Debug'
+    String deployTaskGroup = "plugin";
+    String deployTaskName = "deploy${variantName}Plugin"; // Like 'deployDebugPlugin'
+    String dependencyTaskName = "assemble${variantName}"; // Like 'assembleDebug'
+
+    // Source.
+    String sourceAARFolder = "${buildDir.getPath()}/outputs/aar/";
+    String sourceAARName = "${project.name}-${variant.name}.aar";
+
+    // Target.
+    String targetAssetFolder = "Assets/Plugins/Flurry";
+    String targetAARFolder = "${rootDir.getPath()}/../../${targetAssetFolder}"; // Navigate into 'Assets'
+    String targetAARName = "FlurryAnalytics.aar"; // The form you ship your plugin
+
+    // Create task.
+    task(deployTaskName, dependsOn: dependencyTaskName, type: Copy) {
+        logger.lifecycle("${variant.name.capitalize()} AAR Folder: ${sourceAARFolder}")
+        logger.lifecycle("${variant.name.capitalize()} Target AAR Folder: ${targetAARFolder}")
+        logger.lifecycle("${variant.name.capitalize()} Target AAR name: ${targetAARName}")
+
+        from(sourceAARFolder)
+        into(targetAARFolder)
+        include(sourceAARName)
+        rename(sourceAARName, targetAARName)
+    }.group = deployTaskGroup;
+
+    ////////////////////////
+
+    // Local Task
+    String deployTaskGroupLocal = "pluginLocal";
+    String deployTaskNameLocal = "deploy${variantName}PluginLocal"; // Like 'deployDebugPlugin'
+    String dependencyTaskNameLocal = "assemble${variantName}"; // Like 'assembleDebug'
+
+    // Source is the same
+
+    // Target Local
+    String targetAssetFolderLocal = "Assets/Plugins/Flurry";
+    String targetAARFolderLocal = "${rootDir.getPath()}/project-unity-flurry/${targetAssetFolderLocal}"; // Navigate into 'Assets'
+    //String targetAARName = "AmazonAds.aar"; // The form you ship your plugin
+
+    // Create Task Local Project
+    task(deployTaskNameLocal, dependsOn: dependencyTaskNameLocal, type: Copy)
+    {
+        logger.lifecycle("${variant.name.capitalize()} AAR Folder: ${sourceAARFolder}")
+        logger.lifecycle("${variant.name.capitalize()} Target AAR Folder: ${targetAARFolderLocal}")
+        logger.lifecycle("${variant.name.capitalize()} Target AAR name: ${targetAARName}")
+
+        from(sourceAARFolder)
+        into(targetAARFolderLocal)
+        include(sourceAARName)
+        rename(sourceAARName, targetAARName)
+    }.group = deployTaskGroupLocal;
+}
