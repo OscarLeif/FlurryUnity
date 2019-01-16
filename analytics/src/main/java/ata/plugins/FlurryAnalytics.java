@@ -171,7 +171,39 @@ public class FlurryAnalytics extends Fragment
         FlurryAgent.endTimedEvent(eventName,eventParams);
     }
 
-    // region Utilities
+    // region Remote Config
+
+    /**
+     * Used for Unity
+     */
+    public void fetchConfig()
+    {
+        mFlurryConfig.fetchConfig();
+    }
+
+    public String getRemoteString(String key, String defaultValue)
+    {
+        return mFlurryConfig.getString(key, defaultValue);
+    }
+
+    public boolean getRemoteBool(String key, boolean defaultValue)
+    {
+        return mFlurryConfig.getBoolean(key, defaultValue);
+    }
+
+    public float getRemoteFloat(String key, float defaultValue)
+    {
+        return mFlurryConfig.getFloat(key, defaultValue);
+    }
+
+    public int getRemoteInt(String key, int defaultValue)
+    {
+        return mFlurryConfig.getInt(key, defaultValue);
+    }
+
+    //
+
+    // region Unity Utilities
 
     private void SendUnityMessage(String methodName, String parameter)
     {
