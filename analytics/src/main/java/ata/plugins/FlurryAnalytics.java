@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
+import com.flurry.android.FlurryConfig;
+import com.flurry.android.FlurryConfigListener;
 import com.unity3d.player.UnityPlayer;
 
 import java.util.HashMap;
@@ -34,6 +36,10 @@ public class FlurryAnalytics extends Fragment
     // Unity context.
     private String gameObjectName;
 
+    //Remote Config
+    private FlurryConfig mFlurryConfig;
+    private FlurryConfigListener mFlurryConfigListener;
+
     public static void start(String flurryKey)
     {
         // Instantiate and add Unity Player Activity;
@@ -52,6 +58,7 @@ public class FlurryAnalytics extends Fragment
         //consentStrings.put("IAB", "yes");
 
         super.onCreate(savedInstanceState);
+
         if(UnityPlayer.currentActivity == null)
         {
             Log.d(LOG_TAG, "Warning Current Activity is null");
@@ -86,6 +93,44 @@ public class FlurryAnalytics extends Fragment
         FlurryAgent.onStartSession(UnityPlayer.currentActivity);
         Log.d(LOG_TAG, "onCreate: Method Called");
         Log.d(LOG_TAG, "onCreate: KEY :" + FLURRY_API_KEY);
+
+        // flurry config
+        mFlurryConfig = FlurryConfig.getInstance();
+        // Setup Flurry Config
+        mFlurryConfigListener = new FlurryConfigListener() {
+            @Override
+            public void onFetchSuccess() {
+                mFlurryConfig.activateConfig();
+            }
+
+            @Override
+            public void onFetchNoChange() {
+                // Use the Config cached data if available
+            }
+
+            @Override
+            public void onFetchError(boolean isRetrying) {
+                // Use the Config cached data if available
+            }
+
+            @Override
+            public void onActivateComplete(boolean isCache) {
+                FlurryAgent.logEvent("Config Update Pager");
+                //if (mFlurryConfig.getBoolean("pager_tab",getResources().getBoolean(R.bool.pager_tab)))
+                if (true)
+                {
+                    //findViewById(R.id.pager_strip).setVisibility(View.GONE);
+                    //findViewById(R.id.pager_tab).setVisibility(View.VISIBLE);
+                } else
+                    {
+                    //findViewById(R.id.pager_strip).setVisibility(View.VISIBLE);
+                    //findViewById(R.id.pager_tab).setVisibility(View.GONE);
+                }
+
+                //pagerAdapter.updateViews(mFlurryConfig.getString("pager_views", getResources().getString(R.string.pager_views)));
+            }
+        };
+        mFlurryConfig.registerListener(mFlurryConfigListener);
     }
 
     @Override
@@ -93,6 +138,12 @@ public class FlurryAnalytics extends Fragment
     {
         super.onStop();
         FlurryAgent.onEndSession(UnityPlayer.currentActivity);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFlurryConfig.unregisterListener(mFlurryConfigListener);
     }
 
     public void logEvent(String eventName)
