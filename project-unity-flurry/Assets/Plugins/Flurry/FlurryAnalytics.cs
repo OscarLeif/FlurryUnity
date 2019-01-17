@@ -120,8 +120,9 @@ public class FlurryAnalytics : MonoBehaviour
                     Debug.Log("Probably is Test Mode or Key store is empty");
                     break;
             }
-            _javaClass= new AndroidJavaClass("ata.plugins.FlurryAnalytics");
+            _javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
             _javaClass.CallStatic("start", finalKey);
+            this.fetchConfig();//You can fetch later, but lets say everytime the user is online. For now
             this.m_isInit = true;
         }
 
@@ -182,6 +183,95 @@ public class FlurryAnalytics : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Remote Config
+
+    /// <summary>
+    /// Used to Fetech remote config from Flurry Servers
+    /// </summary>
+    public void fetchConfig()
+    {
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            _javaObject.Call("fetchConfig");
+        }
+#endif
+    }
+
+    /// <summary>
+    /// Get remote Value from Flurry config, if cannot get remote value
+    /// we will return a default. A fetch and remote values should exist.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <returns></returns>
+    public string getRemoteString(string key, string defaultValue)
+    {
+        string returnString = defaultValue;
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            returnString = _javaObject.Call<string>("getRemoteString", key, defaultValue);
+        }
+#endif
+        return returnString;
+    }
+
+    public bool getRemoteBool(string key, bool defaultValue)
+    {
+        bool returnBool = defaultValue;
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            returnBool = _javaObject.Call<bool>("getRemoteBool", key, defaultValue);
+        }
+#endif
+        return returnBool;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <returns></returns>
+    public int getRemoteInt(string key, int defaultValue)
+    {
+        int returnInt = defaultValue;
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            returnInt = _javaObject.Call<int>("getRemoteInt", key, defaultValue);
+        }
+#endif
+        return returnInt;
+    }
+
+    public float getRemoteFloat(string key, float defaultValue)
+    {
+        float returnFloat = defaultValue;
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            returnFloat = _javaObject.Call<float>("getRemoteFloat", key, defaultValue);
+        }
+#endif
+        return returnFloat;
+    }
+
+    public float getRemoteLong(string key, long defaultValue)
+    {
+        long returnLong = defaultValue;
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            returnLong = _javaObject.Call<long>("getRemoteLong", key, defaultValue);
+        }
+#endif
+        return returnLong;
+    }
     #endregion
 
     #region Helpers

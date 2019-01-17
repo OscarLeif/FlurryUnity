@@ -115,7 +115,7 @@ public class FlurryAnalytics extends Fragment
 
             @Override
             public void onActivateComplete(boolean isCache) {
-                FlurryAgent.logEvent("Config Update Pager");
+                FlurryAgent.logEvent("Remote Config Activated");
                 //if (mFlurryConfig.getBoolean("pager_tab",getResources().getBoolean(R.bool.pager_tab)))
                 if (true)
                 {
@@ -141,7 +141,8 @@ public class FlurryAnalytics extends Fragment
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy()
+    {
         super.onDestroy();
         mFlurryConfig.unregisterListener(mFlurryConfigListener);
     }
@@ -174,7 +175,9 @@ public class FlurryAnalytics extends Fragment
     // region Remote Config
 
     /**
-     * Used for Unity
+     * Fetch remote config from Flurry
+     * When fetching is OK return remote values
+     * if not it will always return default values
      */
     public void fetchConfig()
     {
@@ -191,17 +194,21 @@ public class FlurryAnalytics extends Fragment
         return mFlurryConfig.getBoolean(key, defaultValue);
     }
 
-    public float getRemoteFloat(String key, float defaultValue)
-    {
-        return mFlurryConfig.getFloat(key, defaultValue);
-    }
-
     public int getRemoteInt(String key, int defaultValue)
     {
         return mFlurryConfig.getInt(key, defaultValue);
     }
 
-    //
+    public float getRemoteFloat(String key, float defaultValue)
+    {
+        return mFlurryConfig.getFloat(key, defaultValue);
+    }
+
+    public long getRemoteLong(String key, long defaultValue)
+    {
+        return mFlurryConfig.getLong(key, defaultValue);
+    }
+    //endregion
 
     // region Unity Utilities
 
