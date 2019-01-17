@@ -128,9 +128,11 @@ public class FlurryAnalytics extends Fragment
                 }
 
                 //pagerAdapter.updateViews(mFlurryConfig.getString("pager_views", getResources().getString(R.string.pager_views)));
+                Log.d(LOG_TAG,"on Activate Complete");
             }
         };
         mFlurryConfig.registerListener(mFlurryConfigListener);
+        mFlurryConfig.fetchConfig();
     }
 
     @Override
@@ -178,6 +180,7 @@ public class FlurryAnalytics extends Fragment
      * Fetch remote config from Flurry
      * When fetching is OK return remote values
      * if not it will always return default values
+     * Check if mFlurryConfig is not null
      */
     public void fetchConfig()
     {
