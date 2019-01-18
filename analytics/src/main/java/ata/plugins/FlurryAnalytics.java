@@ -100,27 +100,27 @@ public class FlurryAnalytics extends Fragment
         mFlurryConfigListener = new FlurryConfigListener() {
             @Override
             public void onFetchSuccess() {
-                Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
                 mFlurryConfig.activateConfig();
             }
 
             @Override
             public void onFetchNoChange() {
                 // Use the Config cached data if available
-                Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFetchError(boolean isRetrying) {
                 // Use the Config cached data if available
-                Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onActivateComplete(boolean isCache) {
                 FlurryAgent.logEvent("Remote Config Activated");
                 String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
-                Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
                 Log.d(LOG_TAG,"on Activate Complete");
             }
         };
