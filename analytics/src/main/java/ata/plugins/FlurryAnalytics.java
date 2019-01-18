@@ -5,8 +5,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
+import com.flurry.android.FlurryAgentListener;
 import com.flurry.android.FlurryConfig;
 import com.flurry.android.FlurryConfigListener;
 import com.unity3d.player.UnityPlayer;
@@ -54,9 +56,7 @@ public class FlurryAnalytics extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         Map<String, String> consentStrings = new HashMap<>();
-
         //consentStrings.put("IAB", "yes");
-
         super.onCreate(savedInstanceState);
 
         if(UnityPlayer.currentActivity == null)
@@ -69,14 +69,14 @@ public class FlurryAnalytics extends Fragment
                 .withContinueSessionMillis(10000)
                 .withLogLevel(VERBOSE)
                 //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
-                /*.withListener(new FlurryAgentListener()
+                .withListener(new FlurryAgentListener()
                 {
                     @Override
                     public void onSessionStarted()
                     {
                         Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                     }
-                })*/
+                })
                 .build(UnityPlayer.currentActivity, FLURRY_API_KEY);
         //get version name
         try
@@ -100,34 +100,27 @@ public class FlurryAnalytics extends Fragment
         mFlurryConfigListener = new FlurryConfigListener() {
             @Override
             public void onFetchSuccess() {
+                Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
                 mFlurryConfig.activateConfig();
             }
 
             @Override
             public void onFetchNoChange() {
                 // Use the Config cached data if available
+                Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFetchError(boolean isRetrying) {
                 // Use the Config cached data if available
+                Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onActivateComplete(boolean isCache) {
                 FlurryAgent.logEvent("Remote Config Activated");
-                //if (mFlurryConfig.getBoolean("pager_tab",getResources().getBoolean(R.bool.pager_tab)))
-                if (true)
-                {
-                    //findViewById(R.id.pager_strip).setVisibility(View.GONE);
-                    //findViewById(R.id.pager_tab).setVisibility(View.VISIBLE);
-                } else
-                    {
-                    //findViewById(R.id.pager_strip).setVisibility(View.VISIBLE);
-                    //findViewById(R.id.pager_tab).setVisibility(View.GONE);
-                }
-
-                //pagerAdapter.updateViews(mFlurryConfig.getString("pager_views", getResources().getString(R.string.pager_views)));
+                String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
+                Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
                 Log.d(LOG_TAG,"on Activate Complete");
             }
         };
@@ -184,7 +177,14 @@ public class FlurryAnalytics extends Fragment
      */
     public void fetchConfig()
     {
-        mFlurryConfig.fetchConfig();
+        if(mFlurryConfig!=null)
+        {
+            mFlurryConfig.fetchConfig();
+        }
+        else
+        {
+            Log.d(LOG_TAG, "fetch config is null");
+        }
     }
 
     public String getRemoteString(String key, String defaultValue)
