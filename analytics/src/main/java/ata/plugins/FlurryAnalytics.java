@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryAgentListener;
@@ -20,13 +19,20 @@ import static android.util.Log.VERBOSE;
 
 /**
  * Created by OscarLeif on 5/6/2017.
+ * Update 2019
  */
 
 public class FlurryAnalytics extends Fragment
 {
     //Constants
     public static final String LOG_TAG = "Flurry Analytics";
-    private String FLURRY_API_KEY = "NULL"; //Is set as empty the project crash
+
+    private String DEBUG_FLURRY_API_KEY = "NULL"; //Is set as empty the project crash
+    private String GooglePlayStoreKey= "NULL";
+    private String AmazonAppStoreKey="NULL";
+    private String SamsungGalaxyStoreKey="NULL";
+
+
 
     //The name of the Unity game object that calls Flurry
     //Used for the Listener information form java side.
@@ -47,11 +53,25 @@ public class FlurryAnalytics extends Fragment
         // Instantiate and add Unity Player Activity;
         instance = new FlurryAnalytics();
         instance.gameObjectName = "Flurry";
-        instance.FLURRY_API_KEY = flurryKey;
+        instance.DEBUG_FLURRY_API_KEY = flurryKey;
         Log.d(LOG_TAG, "start: Method Called");
         UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
     }
 
+    public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey)
+    {
+        // Instantiate and add Unity Player Activity;
+        instance = new FlurryAnalytics();
+        instance.gameObjectName = "Flurry";
+        instance.DEBUG_FLURRY_API_KEY = DebugKey;
+        instance.AmazonAppStoreKey = AmazonKey;
+        instance.SamsungGalaxyStoreKey = GalaxyKey;
+        instance.GooglePlayStoreKey = GooglePlayKey;
+        Log.d(LOG_TAG, "start: Method Called");
+        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+    }
+
+    //region Activity LifeCycle
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -63,6 +83,25 @@ public class FlurryAnalytics extends Fragment
         {
             Log.d(LOG_TAG, "Warning Current Activity is null");
         }
+
+        //By default debug app key is the default if the app is sideloaded.
+        String getCurrentAppStore= DEBUG_FLURRY_API_KEY;
+        if(this.getInstallerPackageName()!=null && !this.getInstallerPackageName().equals(""))
+        {
+            if(this.getInstallerPackageName().equals(APPSTORE.GOOGLE_PLAY))
+            {
+                getCurrentAppStore = instance.GooglePlayStoreKey;
+            }
+            else if(this.getInstallerPackageName().equals(APPSTORE.AMAZON_APPSTORE))
+            {
+                getCurrentAppStore = instance.AmazonAppStoreKey;
+            }
+            else if(this.getInstallerPackageName().equals(APPSTORE.GALAXY_APPSTORE))
+            {
+                getCurrentAppStore = instance.SamsungGalaxyStoreKey;
+            }
+        }
+
         new FlurryAgent.Builder()
                 .withLogEnabled(true)
                 .withCaptureUncaughtExceptions(true)
@@ -77,7 +116,7 @@ public class FlurryAnalytics extends Fragment
                         Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                     }
                 })
-                .build(UnityPlayer.currentActivity, FLURRY_API_KEY);
+                .build(UnityPlayer.currentActivity, getCurrentAppStore);
         //get version name
         try
         {
@@ -92,7 +131,7 @@ public class FlurryAnalytics extends Fragment
         }
         FlurryAgent.onStartSession(UnityPlayer.currentActivity);
         Log.d(LOG_TAG, "onCreate: Method Called");
-        Log.d(LOG_TAG, "onCreate: KEY :" + FLURRY_API_KEY);
+        Log.d(LOG_TAG, "onCreate: KEY :" + DEBUG_FLURRY_API_KEY);
 
         // flurry config
         mFlurryConfig = FlurryConfig.getInstance();
@@ -141,6 +180,25 @@ public class FlurryAnalytics extends Fragment
         super.onDestroy();
         mFlurryConfig.unregisterListener(mFlurryConfigListener);
     }
+
+    //endregion
+
+    public String getInstallerPackageName()
+    {
+        String appstore = "";
+        try
+        {
+            String installer = UnityPlayer.currentActivity.
+                    getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
+            appstore = installer;
+        }
+        catch (Throwable e)
+        {
+
+        }
+        return appstore;
+    }
+
 
     public void logEvent(String eventName)
     {
@@ -222,4 +280,25 @@ public class FlurryAnalytics extends Fragment
     }
 
 // endregion
+
+    public enum APPSTORE
+    {
+        GOOGLE_PLAY("com.android.vending"),
+        AMAZON_APPSTORE("com.amazon.venezia"),
+        GALAXY_APPSTORE("com.sec.android.app.samsungapps");
+
+        private final String name;
+
+        /**
+         * @param name
+         */
+        private APPSTORE(final String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
 }
