@@ -1502,6 +1502,16 @@ Prefab:
       propertyPath: storeVersion
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
+        type: 2}
+      propertyPath: flurryKeyDebug
+      value: YBD2GZYPNGG5SRNGWH6H
+      objectReference: {fileID: 0}
+    - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
+        type: 2}
+      propertyPath: flurryKeyGalaxy
+      value: YBD2GZYPNGG5SRNGWH6H
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 2}
   m_IsPrefabAsset: 0

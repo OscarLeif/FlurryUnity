@@ -32,8 +32,6 @@ public class FlurryAnalytics extends Fragment
     private String AmazonAppStoreKey="NULL";
     private String SamsungGalaxyStoreKey="NULL";
 
-
-
     //The name of the Unity game object that calls Flurry
     //Used for the Listener information form java side.
     private final static String UnityGameObjectName = "Flurry";
@@ -47,16 +45,6 @@ public class FlurryAnalytics extends Fragment
     //Remote Config
     private FlurryConfig mFlurryConfig;
     private FlurryConfigListener mFlurryConfigListener;
-
-    public static void start(String flurryKey)
-    {
-        // Instantiate and add Unity Player Activity;
-        instance = new FlurryAnalytics();
-        instance.gameObjectName = "Flurry";
-        instance.DEBUG_FLURRY_API_KEY = flurryKey;
-        Log.d(LOG_TAG, "start: Method Called");
-        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
-    }
 
     public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey)
     {
@@ -91,15 +79,22 @@ public class FlurryAnalytics extends Fragment
             if(this.getInstallerPackageName().equals(APPSTORE.GOOGLE_PLAY))
             {
                 getCurrentAppStore = instance.GooglePlayStoreKey;
+                Log.v(LOG_TAG, "App store google");
             }
             else if(this.getInstallerPackageName().equals(APPSTORE.AMAZON_APPSTORE))
             {
                 getCurrentAppStore = instance.AmazonAppStoreKey;
+                Log.v(LOG_TAG, "App store Amazon");
             }
             else if(this.getInstallerPackageName().equals(APPSTORE.GALAXY_APPSTORE))
             {
                 getCurrentAppStore = instance.SamsungGalaxyStoreKey;
+                Log.v(LOG_TAG, "App store Galaxy");
             }
+        }
+        else
+        {
+            Log.v(LOG_TAG, "Side loaded app - Test Mode or installed from external file");
         }
 
         new FlurryAgent.Builder()
@@ -188,8 +183,10 @@ public class FlurryAnalytics extends Fragment
         String appstore = "";
         try
         {
-            String installer = UnityPlayer.currentActivity.
-                    getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
+            String installer =
+                    UnityPlayer.currentActivity.
+                    getPackageManager().
+                    getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
             appstore = installer;
         }
         catch (Throwable e)

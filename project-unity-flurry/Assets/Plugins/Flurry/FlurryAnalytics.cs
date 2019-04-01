@@ -89,39 +89,29 @@ public class FlurryAnalytics : MonoBehaviour
 
     private bool isTestMode = false;
 
+    public string flurryKeyDebug;
+
     public string flurryKeyAmazon;
 
     public string flurryKeyGoogle;
 
-    public StoreVersion storeVersion;
-
+    public string flurryKeyGalaxy;
     #endregion
 
     #region Flurry Methods
 
     public void Setup()
     {
-        string finalKey = "";//TODO Clean up
+        
         if (PluginEnable)
         {
             if (Debug.isDebugBuild)
             {
                 this.isTestMode = true;
-            }
-            switch (storeVersion)
-            {
-                case StoreVersion.AmazonStore:
-                    finalKey = this.flurryKeyAmazon;
-                    break;
-                case StoreVersion.GooglePlay:
-                    finalKey = this.flurryKeyGoogle;
-                    break;
-                default:
-                    Debug.Log("Probably is Test Mode or Key store is empty");
-                    break;
-            }
+            }            
             _javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
-            _javaClass.CallStatic("start", finalKey);
+            //_javaClass.CallStatic("methodName", DebugKey, GooglePlayKey, AmazonKey, GalaxyKey);
+            _javaClass.CallStatic("start", flurryKeyDebug,flurryKeyGoogle,flurryKeyAmazon,flurryKeyGalaxy);
             this.fetchConfig();//You can fetch later, but lets say everytime the user is online. For now
             this.m_isInit = true;
         }
@@ -309,10 +299,4 @@ public class FlurryAnalytics : MonoBehaviour
     }*/
 
     #endregion
-}
-
-
-public enum StoreVersion
-{
-    GooglePlay, AmazonStore, disable
 }
