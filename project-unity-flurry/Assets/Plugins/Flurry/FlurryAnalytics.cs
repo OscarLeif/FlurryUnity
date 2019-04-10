@@ -329,14 +329,13 @@ public class FlurryAnalytics : MonoBehaviour
         Debug.Log("AmazonAds NonAndroid Message: " + message);
 #endif
     }
-}
-
-class AndroidPluginCallback : AndroidJavaProxy
-{
-    public AndroidPluginCallback() : base("ata.plugins.FlurryPluginCallback") { }
-
-    public void OnInitialize(bool isInit)
+    class AndroidPluginCallback : AndroidJavaProxy
     {
-        FlurryAnalytics.Instance.IsInitialize = isInit;
+        public AndroidPluginCallback() : base("ata.plugins.FlurryPluginCallback") { }
+
+        public void OnInitialize(bool isInit)
+        {
+            FlurryAnalytics.Instance.IsInitialize = isInit;
+        }
     }
 }
