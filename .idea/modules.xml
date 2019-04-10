@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Flurry.iml" filepath="$PROJECT_DIR$/Flurry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Flurry-SDK.iml" filepath="$PROJECT_DIR$/Flurry-SDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/analytics/analytics.iml" filepath="$PROJECT_DIR$/analytics/analytics.iml" />
     </modules>
   </component>

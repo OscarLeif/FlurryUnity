@@ -19,7 +19,7 @@ import static android.util.Log.VERBOSE;
 
 /**
  * Created by OscarLeif on 5/6/2017.
- * Update 2019
+ * Update 10 April 2019
  */
 
 public class FlurryAnalytics extends Fragment
@@ -28,9 +28,9 @@ public class FlurryAnalytics extends Fragment
     public static final String LOG_TAG = "Flurry Analytics";
 
     private String DEBUG_FLURRY_API_KEY = "NULL"; //Is set as empty the project crash
-    private String GooglePlayStoreKey= "NULL";
-    private String AmazonAppStoreKey="NULL";
-    private String SamsungGalaxyStoreKey="NULL";
+    private String GooglePlayStoreKey = "NULL";
+    private String AmazonAppStoreKey = "NULL";
+    private String SamsungGalaxyStoreKey = "NULL";
 
     //The name of the Unity game object that calls Flurry
     //Used for the Listener information form java side.
@@ -39,6 +39,8 @@ public class FlurryAnalytics extends Fragment
     //instance instance
     public static FlurryAnalytics instance;
 
+    private FlurryPluginCallback unityCallbackReference;
+
     // Unity context.
     private String gameObjectName;
 
@@ -46,7 +48,7 @@ public class FlurryAnalytics extends Fragment
     private FlurryConfig mFlurryConfig;
     private FlurryConfigListener mFlurryConfigListener;
 
-    public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey)
+    public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey, FlurryPluginCallback callback)
     {
         // Instantiate and add Unity Player Activity;
         instance = new FlurryAnalytics();
@@ -55,6 +57,8 @@ public class FlurryAnalytics extends Fragment
         instance.AmazonAppStoreKey = AmazonKey;
         instance.SamsungGalaxyStoreKey = GalaxyKey;
         instance.GooglePlayStoreKey = GooglePlayKey;
+        instance.unityCallbackReference = callback;
+
         Log.d(LOG_TAG, "start: Method Called");
         UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
     }
@@ -63,39 +67,12 @@ public class FlurryAnalytics extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        super.onCreate(savedInstanceState);
         Map<String, String> consentStrings = new HashMap<>();
         //consentStrings.put("IAB", "yes");
-        super.onCreate(savedInstanceState);
+        //By default debug app key is the default if the app is side loaded.
 
-        if(UnityPlayer.currentActivity == null)
-        {
-            Log.d(LOG_TAG, "Warning Current Activity is null");
-        }
-
-        //By default debug app key is the default if the app is sideloaded.
-        String getCurrentAppStore= DEBUG_FLURRY_API_KEY;
-        if(this.getInstallerPackageName()!=null && !this.getInstallerPackageName().equals(""))
-        {
-            if(this.getInstallerPackageName().equals(APPSTORE.GOOGLE_PLAY))
-            {
-                getCurrentAppStore = instance.GooglePlayStoreKey;
-                Log.v(LOG_TAG, "App store google");
-            }
-            else if(this.getInstallerPackageName().equals(APPSTORE.AMAZON_APPSTORE))
-            {
-                getCurrentAppStore = instance.AmazonAppStoreKey;
-                Log.v(LOG_TAG, "App store Amazon");
-            }
-            else if(this.getInstallerPackageName().equals(APPSTORE.GALAXY_APPSTORE))
-            {
-                getCurrentAppStore = instance.SamsungGalaxyStoreKey;
-                Log.v(LOG_TAG, "App store Galaxy");
-            }
-        }
-        else
-        {
-            Log.v(LOG_TAG, "Side loaded app - Test Mode or installed from external file");
-        }
+        String getCurrentAppStore = this.returnCurrentStore();
 
         new FlurryAgent.Builder()
                 .withLogEnabled(true)
@@ -108,6 +85,7 @@ public class FlurryAnalytics extends Fragment
                     @Override
                     public void onSessionStarted()
                     {
+                        unityCallbackReference.OnInitialize(true);
                         Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                     }
                 })
@@ -121,45 +99,78 @@ public class FlurryAnalytics extends Fragment
             String version = pInfo.versionName;
             FlurryAgent.setVersionName(version);
             Log.d(LOG_TAG, "onCreate: versionName: " + version);
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e)
+        {
             e.printStackTrace();
         }
         FlurryAgent.onStartSession(UnityPlayer.currentActivity);
+
         Log.d(LOG_TAG, "onCreate: Method Called");
         Log.d(LOG_TAG, "onCreate: KEY :" + DEBUG_FLURRY_API_KEY);
 
         // flurry config
         mFlurryConfig = FlurryConfig.getInstance();
         // Setup Flurry Config
-        mFlurryConfigListener = new FlurryConfigListener() {
+        mFlurryConfigListener = new FlurryConfigListener()
+        {
             @Override
-            public void onFetchSuccess() {
+            public void onFetchSuccess()
+            {
                 //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
                 mFlurryConfig.activateConfig();
             }
 
             @Override
-            public void onFetchNoChange() {
+            public void onFetchNoChange()
+            {
                 // Use the Config cached data if available
                 //Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onFetchError(boolean isRetrying) {
+            public void onFetchError(boolean isRetrying)
+            {
                 // Use the Config cached data if available
                 //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onActivateComplete(boolean isCache) {
+            public void onActivateComplete(boolean isCache)
+            {
                 FlurryAgent.logEvent("Remote Config Activated");
                 String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
                 //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG,"on Activate Complete");
+                Log.d(LOG_TAG, "on Activate Complete");
             }
         };
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
+    }
+
+    private String returnCurrentStore()
+    {
+        String currentKey = this.DEBUG_FLURRY_API_KEY;
+        if (this.getInstallerPackageName() != null && !this.getInstallerPackageName().equals(""))
+        {
+            if (this.getInstallerPackageName().equals(APPSTORE.GOOGLE_PLAY))
+            {
+                Log.v(LOG_TAG, "App store google");
+                currentKey = instance.GooglePlayStoreKey;
+
+            } else if (this.getInstallerPackageName().equals(APPSTORE.AMAZON_APPSTORE))
+            {
+                currentKey = instance.AmazonAppStoreKey;
+                Log.v(LOG_TAG, "App store Amazon");
+            } else if (this.getInstallerPackageName().equals(APPSTORE.GALAXY_APPSTORE))
+            {
+                currentKey = instance.SamsungGalaxyStoreKey;
+                Log.v(LOG_TAG, "App store Galaxy");
+            }
+        } else
+        {
+            Log.v(LOG_TAG, "Side loaded app - Test Mode or installed from external file");
+        }
+        return currentKey;
     }
 
     @Override
@@ -185,11 +196,10 @@ public class FlurryAnalytics extends Fragment
         {
             String installer =
                     UnityPlayer.currentActivity.
-                    getPackageManager().
-                    getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
+                            getPackageManager().
+                            getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
             appstore = installer;
-        }
-        catch (Throwable e)
+        } catch (Throwable e)
         {
 
         }
@@ -204,10 +214,10 @@ public class FlurryAnalytics extends Fragment
 
     public void logEvent(String eventName, boolean timed)
     {
-        FlurryAgent.logEvent(eventName,timed);
+        FlurryAgent.logEvent(eventName, timed);
     }
 
-    public void logEvent(String eventName, Map<String, String> eventParams, boolean timed )
+    public void logEvent(String eventName, Map<String, String> eventParams, boolean timed)
     {
         FlurryAgent.logEvent(eventName, eventParams, timed);
     }
@@ -217,9 +227,9 @@ public class FlurryAnalytics extends Fragment
         FlurryAgent.endTimedEvent(eventName);
     }
 
-    public void endTimedEvent(String eventName, Map<String,String> eventParams)
+    public void endTimedEvent(String eventName, Map<String, String> eventParams)
     {
-        FlurryAgent.endTimedEvent(eventName,eventParams);
+        FlurryAgent.endTimedEvent(eventName, eventParams);
     }
 
     // region Remote Config
@@ -232,11 +242,10 @@ public class FlurryAnalytics extends Fragment
      */
     public void fetchConfig()
     {
-        if(mFlurryConfig!=null)
+        if (mFlurryConfig != null)
         {
             mFlurryConfig.fetchConfig();
-        }
-        else
+        } else
         {
             Log.d(LOG_TAG, "fetch config is null");
         }
@@ -272,13 +281,13 @@ public class FlurryAnalytics extends Fragment
 
     private void SendUnityMessage(String methodName, String parameter)
     {
-        Log.i(LOG_TAG, LOG_TAG +"SendUnityMessage(`"+methodName+"`, `"+parameter+"`)");
+        Log.i(LOG_TAG, LOG_TAG + "SendUnityMessage(`" + methodName + "`, `" + parameter + "`)");
         UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);
     }
 
 // endregion
 
-    public enum APPSTORE
+    enum APPSTORE
     {
         GOOGLE_PLAY("com.android.vending"),
         AMAZON_APPSTORE("com.amazon.venezia"),
@@ -289,13 +298,92 @@ public class FlurryAnalytics extends Fragment
         /**
          * @param name
          */
-        private APPSTORE(final String name) {
+        APPSTORE(final String name)
+        {
             this.name = name;
         }
 
-        public String getName() {
+        public String getName()
+        {
             return name;
         }
     }
 
+
 }
+
+interface FlurryPluginCallback
+{
+    public void OnInitialize(boolean isInit);
+}
+
+class AnalyticsHelper
+{
+    /**
+     * Logs an event for analytics.
+     *
+     * @param eventName   name of the event
+     * @param eventParams event parameters (can be null)
+     * @param timed       <code>true</code> if the event should be timed, false otherwise
+     */
+    public static void logEvent(String eventName, Map<String, String> eventParams, boolean timed)
+    {
+        FlurryAgent.logEvent(eventName, eventParams, timed);
+    }
+
+    /**
+     * Ends a timed event that was previously started.
+     *
+     * @param eventName   name of the event
+     * @param eventParams event parameters (can be null)
+     */
+    public static void endTimedEvent(String eventName, Map<String, String> eventParams)
+    {
+        FlurryAgent.endTimedEvent(eventName, eventParams);
+    }
+
+
+    /**
+     * Ends a timed event without event parameters.
+     *
+     * @param eventName name of the event
+     */
+    public static void endTimedEvent(String eventName)
+    {
+        FlurryAgent.endTimedEvent(eventName);
+    }
+
+    /**
+     * Logs an error.
+     *
+     * @param errorId          error ID
+     * @param errorDescription error description
+     * @param throwable        a {@link Throwable} that describes the error
+     */
+    public static void logError(String errorId, String errorDescription, Throwable throwable)
+    {
+        FlurryAgent.onError(errorId, errorDescription, throwable);
+    }
+
+    /**
+     * Logs location.
+     *
+     * @param latitude  latitude of location
+     * @param longitude longitude of location
+     */
+    public static void logLocation(double latitude, double longitude)
+    {
+        FlurryAgent.setLocation((float) latitude, (float) longitude);
+    }
+
+    /**
+     * Logs page view counts.
+     */
+    public static void logPageViews()
+    {
+        FlurryAgent.onPageView();
+    }
+}
+
+
+

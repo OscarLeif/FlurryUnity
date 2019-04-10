@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿#define FlurrySDK
+
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -85,7 +87,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     private AndroidJavaObject _javaObject { get { return _javaClass.GetStatic<AndroidJavaObject>("instance"); } }
 
-    private bool m_isInit = false;
+    public bool IsInitialize { get; set; }
 
     private bool isTestMode = false;
 
@@ -102,48 +104,44 @@ public class FlurryAnalytics : MonoBehaviour
 
     public void Setup()
     {
-        
         if (PluginEnable)
         {
             if (Debug.isDebugBuild)
             {
                 this.isTestMode = true;
-            }            
+            }
             _javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
-            //_javaClass.CallStatic("methodName", DebugKey, GooglePlayKey, AmazonKey, GalaxyKey);
-            _javaClass.CallStatic("start", flurryKeyDebug,flurryKeyGoogle,flurryKeyAmazon,flurryKeyGalaxy);
+            _javaClass.CallStatic("start", 
+                flurryKeyDebug, flurryKeyGoogle, flurryKeyAmazon, flurryKeyGalaxy, new AndroidPluginCallback());
             this.fetchConfig();//You can fetch later, but lets say everytime the user is online. For now
-            this.m_isInit = true;
         }
-
     }
 
     public void LogEvent(string eventName)
     {
-        if (PluginEnable && m_isInit)
+        if (PluginEnable && IsInitialize)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("logEvent", eventName);
+            if (Application.platform == RuntimePlatform.Android)
+                _javaObject.Call("logEvent", eventName);
 #endif
         }
     }
 
     public void StartLogEvent(string eventName, bool recorded)
-
     {
-        if (PluginEnable && m_isInit)
+        if (PluginEnable && IsInitialize)
         {
 #if UNITY_ANDROID 
-            _javaObject.Call("logEvent", eventName, recorded);
+            if (Application.platform == RuntimePlatform.Android)
+                _javaObject.Call("logEvent", eventName, recorded);
 #endif
         }
     }
 
-
     public void EndTimeEvent(string eventName)
-
     {
-        if (PluginEnable && m_isInit)
+        if (PluginEnable && IsInitialize)
         {
 #if UNITY_ANDROID 
             _javaObject.Call("endTimedEvent", eventName);
@@ -155,7 +153,7 @@ public class FlurryAnalytics : MonoBehaviour
     //WARNING NOT Impletemented.
     public void LogEvent(string eventName, Dictionary<string, string> parameters, bool record = false)
     {
-        if (PluginEnable && m_isInit)
+        if (PluginEnable && IsInitialize)
         {
 #if UNITY_ANDROID
             using (var hashMap = DictionaryToJavaHashMap(parameters))
@@ -251,7 +249,7 @@ public class FlurryAnalytics : MonoBehaviour
         return returnFloat;
     }
 
-    public float getRemoteLong(string key, long defaultValue)
+    public long getRemoteLong(string key, long defaultValue)
     {
         long returnLong = defaultValue;
 #if UNITY_ANDROID
@@ -299,4 +297,14 @@ public class FlurryAnalytics : MonoBehaviour
     }*/
 
     #endregion
+}
+
+class AndroidPluginCallback : AndroidJavaProxy
+{
+    public AndroidPluginCallback() : base("ata.plugins.FlurryPluginCallback") { }
+
+    public void OnInitialize(bool isInit)
+    {
+        FlurryAnalytics.Instance.IsInitialize = isInit;
+    }
 }
