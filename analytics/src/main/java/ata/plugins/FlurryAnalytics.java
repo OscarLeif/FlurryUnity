@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryAgentListener;
@@ -51,16 +52,23 @@ public class FlurryAnalytics extends Fragment
     public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey, FlurryPluginCallback callback)
     {
         // Instantiate and add Unity Player Activity;
-        instance = new FlurryAnalytics();
-        instance.gameObjectName = "Flurry";
-        instance.DEBUG_FLURRY_API_KEY = DebugKey;
-        instance.AmazonAppStoreKey = AmazonKey;
-        instance.SamsungGalaxyStoreKey = GalaxyKey;
-        instance.GooglePlayStoreKey = GooglePlayKey;
-        instance.unityCallbackReference = callback;
+        if (instance == null)
+        {
+            instance = new FlurryAnalytics();
+            instance.gameObjectName = "Flurry";
+            instance.DEBUG_FLURRY_API_KEY = DebugKey;
+            instance.AmazonAppStoreKey = AmazonKey;
+            instance.SamsungGalaxyStoreKey = GalaxyKey;
+            instance.GooglePlayStoreKey = GooglePlayKey;
+            instance.unityCallbackReference = callback;
 
-        Log.d(LOG_TAG, "start: Method Called");
-        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            Log.d(LOG_TAG, "start: Method Called");
+            UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+        }
+        else
+        {
+            Toast.makeText(UnityPlayer.currentActivity, "Already initialize",Toast.LENGTH_LONG).show();
+        }
     }
 
     //region Activity LifeCycle
