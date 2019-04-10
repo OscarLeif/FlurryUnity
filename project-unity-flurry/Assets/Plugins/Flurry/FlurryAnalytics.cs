@@ -111,7 +111,7 @@ public class FlurryAnalytics : MonoBehaviour
                 this.isTestMode = true;
             }
             _javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
-            _javaClass.CallStatic("start", 
+            _javaClass.CallStatic("start",
                 flurryKeyDebug, flurryKeyGoogle, flurryKeyAmazon, flurryKeyGalaxy, new AndroidPluginCallback());
             this.fetchConfig();//You can fetch later, but lets say everytime the user is online. For now
         }
@@ -181,11 +181,23 @@ public class FlurryAnalytics : MonoBehaviour
     public void fetchConfig()
     {
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             _javaObject.Call("fetchConfig");
         }
 #endif
+    }
+
+    public string GetInstallerPackageName()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            return _javaClass.Call<string>("getInstallerPackageName");
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -199,7 +211,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         string returnString = defaultValue;
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             returnString = _javaObject.Call<string>("getRemoteString", key, defaultValue);
         }
@@ -211,7 +223,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         bool returnBool = defaultValue;
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             returnBool = _javaObject.Call<bool>("getRemoteBool", key, defaultValue);
         }
@@ -229,7 +241,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         int returnInt = defaultValue;
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             returnInt = _javaObject.Call<int>("getRemoteInt", key, defaultValue);
         }
@@ -241,7 +253,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         float returnFloat = defaultValue;
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             returnFloat = _javaObject.Call<float>("getRemoteFloat", key, defaultValue);
         }
@@ -253,7 +265,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         long returnLong = defaultValue;
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             returnLong = _javaObject.Call<long>("getRemoteLong", key, defaultValue);
         }
@@ -297,6 +309,26 @@ public class FlurryAnalytics : MonoBehaviour
     }*/
 
     #endregion
+
+    public void AndroidShowToast(string message, bool useShortDuration = true)
+    {
+
+#if UNITY_ANDROID
+        //Safe Thread problems
+        if (!Debug.isDebugBuild)
+            return;
+        AndroidJavaClass toastClass = new AndroidJavaClass("android.widget.Toast");
+        object[] toastParams = new object[3];
+        AndroidJavaClass unityActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        toastParams[0] = unityActivity.GetStatic<AndroidJavaObject>("currentActivity");
+        toastParams[1] = message;
+        toastParams[2] = useShortDuration ? toastClass.GetStatic<int>("LENGTH_SHORT") : toastClass.GetStatic<int>("LENGTH_LONG");
+        AndroidJavaObject toastObject = toastClass.CallStatic<AndroidJavaObject>("makeText", toastParams);
+        toastObject.Call("show");
+#else
+        Debug.Log("AmazonAds NonAndroid Message: " + message);
+#endif
+    }
 }
 
 class AndroidPluginCallback : AndroidJavaProxy

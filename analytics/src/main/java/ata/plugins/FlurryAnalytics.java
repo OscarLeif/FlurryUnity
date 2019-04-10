@@ -37,7 +37,7 @@ public class FlurryAnalytics extends Fragment
     //Used for the Listener information form java side.
     private final static String UnityGameObjectName = "Flurry";
 
-    //instance instance
+    //instance
     public static FlurryAnalytics instance;
 
     private FlurryPluginCallback unityCallbackReference;
@@ -80,24 +80,32 @@ public class FlurryAnalytics extends Fragment
         //consentStrings.put("IAB", "yes");
         //By default debug app key is the default if the app is side loaded.
 
-        String getCurrentAppStore = this.returnCurrentStore();
+        final String getCurrentAppStore = this.returnCurrentStore();
 
-        new FlurryAgent.Builder()
-                .withLogEnabled(true)
-                .withCaptureUncaughtExceptions(true)
-                .withContinueSessionMillis(10000)
-                .withLogLevel(VERBOSE)
-                //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
-                .withListener(new FlurryAgentListener()
-                {
-                    @Override
-                    public void onSessionStarted()
+        try
+        {
+            new FlurryAgent.Builder()
+                    .withLogEnabled(true)
+                    .withCaptureUncaughtExceptions(true)
+                    .withContinueSessionMillis(10000)
+                    .withLogLevel(VERBOSE)
+                    //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
+                    .withListener(new FlurryAgentListener()
                     {
-                        unityCallbackReference.OnInitialize(true);
-                        Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
-                    }
-                })
-                .build(UnityPlayer.currentActivity, getCurrentAppStore);
+                        @Override
+                        public void onSessionStarted()
+                        {
+                            unityCallbackReference.OnInitialize(true);
+                            Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
+                            logEvent("Installer: " + returnCurrentStore());
+                        }
+                    })
+                    .build(UnityPlayer.currentActivity, getCurrentAppStore);
+        } catch(IllegalArgumentException e)
+        {
+            Log.e(LOG_TAG, "The API KEY Cannot be empty");
+        }
+
         //get version name
         try
         {
@@ -197,9 +205,13 @@ public class FlurryAnalytics extends Fragment
 
     //endregion
 
+    //null - developer
+    //com.android.vending - google play
+    //com.amazon.venezia - amazon app
+    //com.sec.android.app.samsungapps - samsung app store
     public String getInstallerPackageName()
     {
-        String appstore = "";
+        String appstore = null;
         try
         {
             String installer =
@@ -207,13 +219,25 @@ public class FlurryAnalytics extends Fragment
                             getPackageManager().
                             getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
             appstore = installer;
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
 
         }
         return appstore;
     }
 
+    /**
+     * Logs an event for analytics.
+     *
+     * @param eventName   name of the event
+     * @param eventParams event parameters (can be null)
+     * @param timed       <code>true</code> if the event should be timed, false otherwise
+     */
+    public void logEvent(String eventName, Map<String, String> eventParams,boolean timed)
+    {
+        FlurryAgent.logEvent(eventName, eventParams, timed);
+    }
 
     public void logEvent(String eventName)
     {
@@ -222,22 +246,56 @@ public class FlurryAnalytics extends Fragment
 
     public void logEvent(String eventName, boolean timed)
     {
-        FlurryAgent.logEvent(eventName, timed);
+        FlurryAgent.logEvent(eventName,timed);
     }
 
-    public void logEvent(String eventName, Map<String, String> eventParams, boolean timed)
+    /**
+     * Ends a timed event that was previously started.
+     *
+     * @param eventName   name of the event
+     * @param eventParams event parameters (can be null)
+     */
+    public void endTimedEvent(String eventName, Map<String, String> eventParams)
     {
-        FlurryAgent.logEvent(eventName, eventParams, timed);
+        FlurryAgent.endTimedEvent(eventName, eventParams);
     }
-
+    /**
+     * Ends a timed event without event parameters.
+     *
+     * @param eventName name of the event
+     */
     public void endTimedEvent(String eventName)
     {
         FlurryAgent.endTimedEvent(eventName);
     }
-
-    public void endTimedEvent(String eventName, Map<String, String> eventParams)
+    /**
+     * Logs an error.
+     *
+     * @param errorId          error ID
+     * @param errorDescription error description
+     * @param throwable        a {@link Throwable} that describes the error
+     */
+    public void logError(String errorId, String errorDescription, Throwable throwable)
     {
-        FlurryAgent.endTimedEvent(eventName, eventParams);
+        FlurryAgent.onError(errorId, errorDescription, throwable);
+    }
+    /**
+        * Logs location.
+        *
+        * @param latitude  latitude of location
+     * @param longitude longitude of location
+     */
+    public void logLocation(double latitude, double longitude)
+    {
+        FlurryAgent.setLocation((float) latitude, (float) longitude);
+    }
+
+    /**
+     * Logs page view counts.
+     */
+    public void logPageViews()
+    {
+        FlurryAgent.onPageView();
     }
 
     // region Remote Config
@@ -316,81 +374,11 @@ public class FlurryAnalytics extends Fragment
             return name;
         }
     }
-
-
 }
 
 interface FlurryPluginCallback
 {
     public void OnInitialize(boolean isInit);
-}
-
-class AnalyticsHelper
-{
-    /**
-     * Logs an event for analytics.
-     *
-     * @param eventName   name of the event
-     * @param eventParams event parameters (can be null)
-     * @param timed       <code>true</code> if the event should be timed, false otherwise
-     */
-    public static void logEvent(String eventName, Map<String, String> eventParams, boolean timed)
-    {
-        FlurryAgent.logEvent(eventName, eventParams, timed);
-    }
-
-    /**
-     * Ends a timed event that was previously started.
-     *
-     * @param eventName   name of the event
-     * @param eventParams event parameters (can be null)
-     */
-    public static void endTimedEvent(String eventName, Map<String, String> eventParams)
-    {
-        FlurryAgent.endTimedEvent(eventName, eventParams);
-    }
-
-
-    /**
-     * Ends a timed event without event parameters.
-     *
-     * @param eventName name of the event
-     */
-    public static void endTimedEvent(String eventName)
-    {
-        FlurryAgent.endTimedEvent(eventName);
-    }
-
-    /**
-     * Logs an error.
-     *
-     * @param errorId          error ID
-     * @param errorDescription error description
-     * @param throwable        a {@link Throwable} that describes the error
-     */
-    public static void logError(String errorId, String errorDescription, Throwable throwable)
-    {
-        FlurryAgent.onError(errorId, errorDescription, throwable);
-    }
-
-    /**
-     * Logs location.
-     *
-     * @param latitude  latitude of location
-     * @param longitude longitude of location
-     */
-    public static void logLocation(double latitude, double longitude)
-    {
-        FlurryAgent.setLocation((float) latitude, (float) longitude);
-    }
-
-    /**
-     * Logs page view counts.
-     */
-    public static void logPageViews()
-    {
-        FlurryAgent.onPageView();
-    }
 }
 
 

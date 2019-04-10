@@ -216,12 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb23dce0bb395b841860792f39d06007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stringToEdit: Hello event
-  labelRemoteString: {fileID: 0}
-  labelRemoteBool: {fileID: 0}
-  labelRemoteInt: {fileID: 0}
-  labelRemoteFloat: {fileID: 0}
-  labelRemoteLong: {fileID: 0}
+  customEvent: Hello event
 --- !u!1 &1586156551
 GameObject:
   m_ObjectHideFlags: 0
