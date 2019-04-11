@@ -290,6 +290,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1334603959557376, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 3}
+      propertyPath: m_Name
+      value: FlurryObject
+      objectReference: {fileID: 0}
     - target: {fileID: 4561340151101680, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -322,24 +326,21 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
-        type: 3}
-      propertyPath: flurryKeyAmazon
-      value: YBD2GZYPNGG5SRNGWH6H
+    - target: {fileID: 4561340151101680, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
-        type: 3}
-      propertyPath: flurryKeyGoogle
-      value: YBD2GZYPNGG5SRNGWH6H
+    - target: {fileID: 4561340151101680, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4561340151101680, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
         type: 3}
       propertyPath: PluginEnable
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
-        type: 3}
-      propertyPath: storeVersion
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
@@ -350,7 +351,7 @@ PrefabInstance:
     - target: {fileID: 114734315243348976, guid: 7399bb6a823baec48abb9c783b1ea60c,
         type: 3}
       propertyPath: flurryKeyGalaxy
-      value: YBD2GZYPNGG5SRNGWH6H
+      value: D857MGDQWHBN7RSFTD8F
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7399bb6a823baec48abb9c783b1ea60c, type: 3}

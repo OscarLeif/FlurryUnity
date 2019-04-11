@@ -1,13 +1,16 @@
 ﻿#define FlurrySDK
 
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Flurry Object Only for Android
+/// Error 400 in Fetch remote config if remote config doesn't exist in the flurry (console?) platform
 /// </summary>
+[RequireComponent(typeof(UnityFlurryMainThreadDispatcher))]
 public class FlurryAnalytics : MonoBehaviour
 {
     #region Fields
@@ -335,7 +338,7 @@ public class FlurryAnalytics : MonoBehaviour
 
         public void OnInitialize(bool isInit)
         {
-            FlurryAnalytics.Instance.IsInitialize = isInit;
+            UnityFlurryMainThreadDispatcher.Instance().Enqueue(() => FlurryAnalytics.Instance.IsInitialize = isInit);
         }
     }
 }
