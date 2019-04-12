@@ -10,7 +10,7 @@ public class SceneDemo : MonoBehaviour
 
     #region Analytics
 
-    public string customEvent = "Hello event";
+    public string customEvent = "Write Custom Event";
 
     private string remoteString = "NULL";
 
@@ -50,7 +50,7 @@ public class SceneDemo : MonoBehaviour
         {
             if (FlurryAnalytics.Instance)
             {
-                FlurryAnalytics.Instance.LogEvent("Hello World");
+                FlurryAnalytics.Instance.LogEvent(this.customEvent);
             }
         }
 
@@ -69,6 +69,8 @@ public class SceneDemo : MonoBehaviour
                 FlurryAnalytics.Instance.fetchConfig();
             }
         }
+
+        this.customEvent = GUI.TextField(new Rect(Screen.width * 0.55f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), this.customEvent, customButtom);
 
         GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote String: " + this.remoteString, customButtom);
 

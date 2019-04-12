@@ -3,6 +3,7 @@ package ata.plugins;
 import android.app.Fragment;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static android.content.ContentValues.TAG;
 import static android.util.Log.VERBOSE;
 
 /**
@@ -87,12 +89,12 @@ public class FlurryAnalytics extends Fragment
 
         if ("com.android.vending".equals(this.returnCurrentStore()))
             FlurryKey = GooglePlayStoreKey;
-         else if ("com.amazon.venezia".equals(this.returnCurrentStore()))
-             FlurryKey = AmazonAppStoreKey;
+        else if ("com.amazon.venezia".equals(this.returnCurrentStore()))
+            FlurryKey = AmazonAppStoreKey;
         else if ("com.sec.android.app.samsungapps".equals(this.returnCurrentStore()))
-            FlurryKey=SamsungGalaxyStoreKey;
+            FlurryKey = SamsungGalaxyStoreKey;
         else
-            FlurryKey=DEBUG_FLURRY_API_KEY;
+            FlurryKey = DEBUG_FLURRY_API_KEY;
         try
         {
             new FlurryAgent.Builder()
@@ -109,6 +111,7 @@ public class FlurryAnalytics extends Fragment
                             unityCallbackReference.OnInitialize(true);
                             Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                             logEvent("Installer: " + returnCurrentStore());
+                            LogAmazonFireTV();
                         }
                     })
                     .build(UnityPlayer.currentActivity, FlurryKey);
@@ -205,6 +208,25 @@ public class FlurryAnalytics extends Fragment
             //do samsung stuffs;
         }
         return installerPackageName;
+    }
+
+    /**
+     * If Device is an Amazon Fire TV lets Log the Name of the Fire TV.
+     * If the device is new, need to update the List. Remember Fire TV
+     */
+    public void LogAmazonFireTV()
+    {
+        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
+        String AMAZON_MODEL = Build.MODEL;
+
+        if (UnityPlayer.currentActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
+        {
+            Log.v(TAG, "Yes, this is a Fire TV device.");
+            FlurryAnalytics.instance.logEvent("Fire TV Mode: " + AMAZON_MODEL);
+        } else
+        {
+            Log.v(TAG, "No, this is not a Fire TV device");
+        }
     }
 
     @Override

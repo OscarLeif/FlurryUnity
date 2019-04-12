@@ -10,7 +10,8 @@ using UnityEngine;
 /// Flurry Object Only for Android
 /// Error 400 in Fetch remote config if remote config doesn't exist in the flurry (console?) platform
 /// </summary>
-[RequireComponent(typeof(UnityFlurryMainThreadDispatcher))]
+
+
 public class FlurryAnalytics : MonoBehaviour
 {
     #region Fields
@@ -72,7 +73,7 @@ public class FlurryAnalytics : MonoBehaviour
         {
             DontDestroyOnLoad(this.gameObject);
         }
-        this.Setup();
+        //this.Setup();
     }
 
     private void OnApplicationQuit()
@@ -313,6 +314,52 @@ public class FlurryAnalytics : MonoBehaviour
 
     #endregion
 
+    #region ThreadDispatcher
+    private static readonly Queue<Action> _executionQueue = new Queue<Action>();
+
+    private void Update()
+    {
+        lock (_executionQueue)
+        {
+            while (_executionQueue.Count > 0)
+            {
+                _executionQueue.Dequeue().Invoke();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Locks the queue and adds the IEnumerator to the queue
+    /// </summary>
+    /// <param name="action">IEnumerator function that will be executed from the main thread.</param>
+    public void Enqueue(IEnumerator action)
+    {
+        lock (_executionQueue)
+        {
+            _executionQueue.Enqueue(() =>
+            {
+                StartCoroutine(action);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Locks the queue and adds the Action to the queue
+    /// </summary>
+    /// <param name="action">function that will be executed from the main thread.</param>
+    public void Enqueue(Action action)
+    {
+        Enqueue(ActionWrapper(action));
+    }
+
+    IEnumerator ActionWrapper(Action a)
+    {
+        a();
+        yield return null;
+    }
+
+    #endregion
+
     public void AndroidShowToast(string message, bool useShortDuration = true)
     {
 
@@ -332,13 +379,20 @@ public class FlurryAnalytics : MonoBehaviour
         Debug.Log("AmazonAds NonAndroid Message: " + message);
 #endif
     }
-    class AndroidPluginCallback : AndroidJavaProxy
+
+    /// <summary>
+    /// Called from Java.
+    /// Warning everything called from Java must have to be safe thread if not 
+    /// it will fails. 
+    /// </summary>
+    private class AndroidPluginCallback : AndroidJavaProxy
     {
         public AndroidPluginCallback() : base("ata.plugins.FlurryPluginCallback") { }
 
         public void OnInitialize(bool isInit)
         {
-            UnityFlurryMainThreadDispatcher.Instance().Enqueue(() => FlurryAnalytics.Instance.IsInitialize = isInit);
+            FlurryAnalytics.Instance.Enqueue(() => FlurryAnalytics.Instance.IsInitialize = isInit);
+            FlurryAnalytics.Instance.Enqueue( ()=> FlurryAnalytics.Instance.AndroidShowToast("Initialize"));
         }
     }
 }
