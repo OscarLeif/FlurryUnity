@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,13 +12,10 @@ import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryAgentListener;
 import com.flurry.android.FlurryConfig;
 import com.flurry.android.FlurryConfigListener;
-import com.flurry.android.FlurryEventRecordStatus;
 import com.unity3d.player.UnityPlayer;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static android.content.ContentValues.TAG;
 import static android.util.Log.VERBOSE;
@@ -88,11 +84,11 @@ public class FlurryAnalytics extends Fragment
 
         String FlurryKey = "";
 
-        if ("com.android.vending".equals(this.returnCurrentStore()))
+        if ("com.android.vending".equals(this.getInstallerPackageName()))
             FlurryKey = GooglePlayStoreKey;
-        else if ("com.amazon.venezia".equals(this.returnCurrentStore()))
+        else if ("com.amazon.venezia".equals(this.getInstallerPackageName()))
             FlurryKey = AmazonAppStoreKey;
-        else if ("com.sec.android.app.samsungapps".equals(this.returnCurrentStore()))
+        else if ("com.sec.android.app.samsungapps".equals(this.getInstallerPackageName()))
             FlurryKey = SamsungGalaxyStoreKey;
         else
             FlurryKey = DEBUG_FLURRY_API_KEY;
@@ -111,7 +107,7 @@ public class FlurryAnalytics extends Fragment
                         {
                             unityCallbackReference.OnInitialize(true);
                             Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
-                            logEvent("Installer: " + returnCurrentStore());
+                            logEvent("Installer: " + getInstallerPackageName());
                             LogAmazonFireTV();
                         }
                     })
@@ -191,11 +187,15 @@ public class FlurryAnalytics extends Fragment
         mFlurryConfig.fetchConfig();
     }
 
-    private String returnCurrentStore()
+    public String getInstallerPackageName()
     {
         PackageManager pm = UnityPlayer.currentActivity.getPackageManager();
         String installerPackageName = pm.getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
 
+        if(installerPackageName==null)
+        {
+
+        }
         if ("com.android.vending".equals(installerPackageName))
         {
             //do google things
@@ -245,16 +245,6 @@ public class FlurryAnalytics extends Fragment
     }
 
     //endregion
-
-    //null - developer
-    //com.android.vending - google play
-    //com.amazon.venezia - amazon app
-    //com.sec.android.app.samsungapps - samsung app store
-    public String getInstallerPackageName()
-    {
-        Log.v(LOG_TAG,"getInstallerPackageName");
-        return this.returnCurrentStore();
-    }
 
     /**
      * Logs an event for analytics.

@@ -118,6 +118,10 @@ public class FlurryAnalytics : MonoBehaviour
             _javaClass.CallStatic("start",
                 flurryKeyDebug, flurryKeyGoogle, flurryKeyAmazon, flurryKeyGalaxy, new AndroidPluginCallback());
             this.fetchConfig();//You can fetch later, but lets say everytime the user is online. For now
+
+            Debug.Log("Installer Packagename: " + GetInstallerPackageName());
+            if (GetInstallerPackageName() == null)
+                Debug.Log("Installer packagename is NULL");
         }
     }
 
@@ -196,7 +200,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         if (Application.platform == RuntimePlatform.Android)
         {
-            return _javaClass.Call<string>("getInstallerPackageName");
+            return _javaObject.Call<string>("getInstallerPackageName");
         }
         else
         {
@@ -392,7 +396,7 @@ public class FlurryAnalytics : MonoBehaviour
         public void OnInitialize(bool isInit)
         {
             FlurryAnalytics.Instance.Enqueue(() => FlurryAnalytics.Instance.IsInitialize = isInit);
-            FlurryAnalytics.Instance.Enqueue( ()=> FlurryAnalytics.Instance.AndroidShowToast("Initialize"));
+            FlurryAnalytics.Instance.Enqueue(() => FlurryAnalytics.Instance.AndroidShowToast("Initialize"));
         }
     }
 }
