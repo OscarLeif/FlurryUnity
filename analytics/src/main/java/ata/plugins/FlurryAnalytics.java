@@ -230,7 +230,7 @@ public class FlurryAnalytics extends Fragment
         if (UnityPlayer.currentActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
         {
             Log.v(TAG, "Yes, this is a Fire TV device.");
-            FlurryAnalytics.instance.logEvent("Fire TV Mode: " + AMAZON_MODEL);
+            FlurryAnalytics.instance.logEvent("Fire TV Model: " + AMAZON_MODEL);
         } else
         {
             Log.v(TAG, "No, this is not a Fire TV device");
