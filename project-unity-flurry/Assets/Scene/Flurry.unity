@@ -147,6 +147,7 @@ MonoBehaviour:
   flurryKeyAmazon: YBD2GZYPNGG5SRNGWH6H
   flurryKeyGoogle: YBD2GZYPNGG5SRNGWH6H
   flurryKeyGalaxy: D857MGDQWHBN7RSFTD8F
+  Initialize: 0
 --- !u!4 &128291641
 Transform:
   m_ObjectHideFlags: 0
@@ -207,7 +208,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.5254902, g: 0.37254903, b: 0.7725491, a: 1}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
