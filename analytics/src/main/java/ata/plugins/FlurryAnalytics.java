@@ -42,7 +42,7 @@ public class FlurryAnalytics extends Fragment
     //instance
     public static FlurryAnalytics instance;
 
-    private FlurryPluginCallback unityCallbackReference;
+    private FlurryCallback unityCallbackReference;
 
     // Unity context.
     private String gameObjectName;
@@ -52,7 +52,7 @@ public class FlurryAnalytics extends Fragment
     private FlurryConfigListener mFlurryConfigListener;
     private boolean OnFetchSuccess = false;
 
-    public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey, FlurryPluginCallback callback)
+    public static void start(String DebugKey, String GooglePlayKey, String AmazonKey, String GalaxyKey, FlurryCallback callback)
     {
         // Instantiate and add Unity Player Activity;
         if (instance == null)
@@ -105,7 +105,14 @@ public class FlurryAnalytics extends Fragment
                         @Override
                         public void onSessionStarted()
                         {
-                            unityCallbackReference.OnInitialize(true);
+                            UnityPlayer.currentActivity.runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    unityCallbackReference.onInitialize(true);
+                                }
+                            });
                             Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                             logEvent("Installer: " + getInstallerPackageName());
                             LogAmazonFireTV();
@@ -413,9 +420,9 @@ public class FlurryAnalytics extends Fragment
     }
 }
 
-interface FlurryPluginCallback
+interface FlurryCallback
 {
-    public void OnInitialize(boolean isInit);
+    void onInitialize(boolean isInit);
 }
 
 

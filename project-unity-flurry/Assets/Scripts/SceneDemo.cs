@@ -35,13 +35,13 @@ public class SceneDemo : MonoBehaviour
 
         //GUI.Toggle(new Rect(Screen.width * 0.05f, Screen.height* 0.05f, 128,64), FlurryAnalytics.Instance.IsInitialize, "Flurry Initialize", toggleSize);
 
-        GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.90f, Screen.height * 0.08f), "Flurry SDK Initialiaze: " + (FlurryAnalytics.Instance.IsInitialize ? "true" : "false"), customButtom);
+        GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.90f, Screen.height * 0.08f), "Flurry SDK Initialiaze: " + (FlurryAnalytics.Instance.Initialize ? "true" : "false"), customButtom);
 
         if (GUI.Button(new Rect(Screen.width * 0.05f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.10f), "Initialize Flurry SDK", customButtom))
         {
             if (FlurryAnalytics.Instance)
             {
-                FlurryAnalytics.Instance.Setup();
+                FlurryAnalytics.Instance.Init();
             }
         }
 
@@ -66,11 +66,13 @@ public class SceneDemo : MonoBehaviour
         {
             if (FlurryAnalytics.Instance)
             {
-                FlurryAnalytics.Instance.fetchConfig();
+                FlurryAnalytics.Instance.FetchConfig();
             }
         }
 
         this.customEvent = GUI.TextField(new Rect(Screen.width * 0.55f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), this.customEvent, customButtom);
+
+        GUI.Label(new Rect(Screen.width * 0.55f, Screen.height * 0.60f, Screen.width * 0.4f, Screen.height * 0.08f), FlurryAnalytics.Instance.Initialize ? FlurryAnalytics.Instance.GetInstallerPackageName() : "NO Initialize", customButtom);
 
         GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote String: " + this.remoteString, customButtom);
 
