@@ -73,7 +73,7 @@ public class FlurryAnalytics : MonoBehaviour
         {
             DontDestroyOnLoad(this.gameObject);
         }
-        //this.Setup();
+        this.Setup();
     }
 
     private void OnApplicationQuit()
@@ -198,7 +198,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     public string GetInstallerPackageName()
     {
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android && IsInitialize)
         {
             return _javaObject.Call<string>("getInstallerPackageName");
         }
