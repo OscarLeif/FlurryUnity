@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -251,6 +252,7 @@ public class FlurryAnalytics extends Fragment
     //com.sec.android.app.samsungapps - samsung app store
     public String getInstallerPackageName()
     {
+        Log.v(LOG_TAG,"getInstallerPackageName");
         return this.returnCurrentStore();
     }
 
