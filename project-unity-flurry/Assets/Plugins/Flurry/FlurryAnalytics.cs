@@ -321,6 +321,24 @@ public class FlurryAnalytics : MonoBehaviour
     #region ThreadDispatcher
     private static readonly Queue<Action> _executionQueue = new Queue<Action>();
 
+    public static bool Exist()
+    {
+        return _instance != null;
+    }
+
+    /// <summary>
+    /// Used from Android Java Proxy Calls
+    /// </summary>
+    /// <returns></returns>
+    public static FlurryAnalytics _Instance()
+    {
+        if (!Exist())
+        {
+            throw new Exception("FlurryAnalytics as MainThreadDispatcher could not find the FlurryAnalytics Object. Please make ensure it exist");
+        }
+        return _instance;
+    }
+
     private void Update()
     {
         lock (_executionQueue)
@@ -395,8 +413,8 @@ public class FlurryAnalytics : MonoBehaviour
 
         public void OnInitialize(bool isInit)
         {
-            FlurryAnalytics.Instance.Enqueue(() => FlurryAnalytics.Instance.IsInitialize = isInit);
-            FlurryAnalytics.Instance.Enqueue(() => FlurryAnalytics.Instance.AndroidShowToast("Initialize"));
+            FlurryAnalytics._Instance().Enqueue(() => FlurryAnalytics.Instance.IsInitialize = isInit);
+            FlurryAnalytics._Instance().Enqueue(() => FlurryAnalytics.Instance.AndroidShowToast("Initialize"));
         }
     }
 }
