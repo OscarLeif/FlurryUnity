@@ -112,16 +112,24 @@ public class FlurryAnalytics : MonoBehaviour
 #endif
     }
 
-    public void LogEvent(string eventName, bool record = false)
+    public void LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false)
     {
         if (PluginEnable && Initialize)
         {
 #if UNITY_ANDROID 
             if (Application.platform == RuntimePlatform.Android)
-                if (!record)
-                    _javaObject.Call("logEvent", eventName);
+                if (dictionary != null)
+                {
+                    var hashMap = DictionaryToJavaHashMap(dictionary);
+                    _javaObject.Call("logEvent", eventName, hashMap, record);
+                }
                 else
-                    _javaObject.Call("logEvent", eventName, record);
+                {
+                    if (!record)
+                        _javaObject.Call("logEvent", eventName);
+                    else
+                        _javaObject.Call("logEvent", eventName, record);
+                }
 #endif
         }
     }
@@ -227,8 +235,6 @@ public class FlurryAnalytics : MonoBehaviour
     }
     #endregion
 
-
-
     #region AndroidExtras
 
     /// <summary>
@@ -271,6 +277,28 @@ public class FlurryAnalytics : MonoBehaviour
     public static void AndroidShowToastMessage(String message, bool useShortDuration = true)
     {
         FlurryAnalytics.Instance.AndroidShowToast(message, useShortDuration);
+    }
+
+    /// <summary>
+    /// Converts Dictionary<string, string> to java HashMap object
+    /// </summary>
+    private static AndroidJavaObject DictionaryToJavaHashMap(Dictionary<string, string> dictionary)
+    {
+        var javaObject = new AndroidJavaObject("java.util.HashMap");
+        var put = AndroidJNIHelper.GetMethodID(javaObject.GetRawClass(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+        foreach (KeyValuePair<string, string> entry in dictionary)
+        {
+            using (var key = new AndroidJavaObject("java.lang.String", entry.Key))
+            {
+                using (var value = new AndroidJavaObject("java.lang.String", entry.Value))
+                {
+                    AndroidJNI.CallObjectMethod(javaObject.GetRawObject(), put, AndroidJNIHelper.CreateJNIArgArray(new object[] { key, value }));
+                }
+            }
+        }
+
+        return javaObject;
     }
     #endregion
 
@@ -355,7 +383,7 @@ public class FlurryAnalytics : MonoBehaviour
         public void onInitialize(bool isInit)
         {
             reference.Initialize = isInit;
-            reference.Enqueue(() => reference.AndroidShowToast("Plugin Initialize " + isInit));            
+            reference.Enqueue(() => reference.AndroidShowToast("Plugin Initialize " + isInit));
         }
 
     }
