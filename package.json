@@ -2,6 +2,5 @@
   "name": "com.ata.flurry",
   "version": "1.0.0",
   "description": "A UnOfficial Flurry Plugin for Android Unity",
-  "displayName": "Flurry Plugin",
-  "unity": "2018.1"
+  "displayName": "Flurry Plugin"
 }
