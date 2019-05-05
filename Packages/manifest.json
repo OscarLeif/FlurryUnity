@@ -1,0 +1,12 @@
+{
+  "name": "com.ata.flurry",
+  "displayName": "Flurry Analytics",
+  "version": "0.0.1",
+  "unity": "2018.1",
+  "description": "Unoficial Flurry Analytics.",
+  "keywords": [
+      "maths",
+      "unity"
+  ],
+  "category": "Unity"
+}
