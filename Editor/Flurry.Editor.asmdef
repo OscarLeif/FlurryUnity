@@ -1,10 +1,10 @@
 {
-    "name": "Flurry",
+    "name": "Flurry.Editor",
     "references": [],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [
-        "Editor",
+        "Android",
         "iOS",
         "LinuxStandalone32",
         "LinuxStandalone64",
