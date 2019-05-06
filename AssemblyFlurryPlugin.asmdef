@@ -1,0 +1,17 @@
+{
+    "name": "AssemblyFlurryPlugin",
+    "references": [
+        "GUID:83ffe8380377c8e459ffc299aff81b34"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "Android"
+    ],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}
