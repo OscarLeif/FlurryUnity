@@ -66,7 +66,6 @@ public class FlurryAnalytics : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
             //this.gameObject.name = "@FlurryAnalytics";
         }
-        this.Init();
     }
 
     private void OnApplicationQuit()
@@ -99,6 +98,7 @@ public class FlurryAnalytics : MonoBehaviour
     #region Flurry Analytics Methods()
 
     // Add an advertising network and Initialize the Plugin
+    // Called just once
     public void Init()
     {
         if (PluginEnable == false)
@@ -110,6 +110,16 @@ public class FlurryAnalytics : MonoBehaviour
             _javaClass.CallStatic("start", flurryKeyDebug, flurryKeyGoogle, flurryKeyAmazon, flurryKeyGalaxy, new AndroidPluginCallback(this));
         }
 #endif
+    }
+
+    // Non prefab Initialize
+    public void Init(string flurryKeyDebug, string flurryKeyGoogle, string flurryKeyAmazon, string flurryKeyGalaxy)
+    {
+        this.PluginEnable = true;
+        this.flurryKeyDebug = flurryKeyDebug;
+        this.flurryKeyGoogle = flurryKeyGoogle;
+        this.flurryKeyAmazon = flurryKeyAmazon;
+        this.Init();
     }
 
     public void LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false)
