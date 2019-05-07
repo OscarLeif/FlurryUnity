@@ -4,21 +4,7 @@
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [
-        "Editor",
-        "iOS",
-        "LinuxStandalone32",
-        "LinuxStandalone64",
-        "LinuxStandaloneUniversal",
-        "Lumin",
-        "macOSStandalone",
-        "PS4",
-        "Switch",
-        "tvOS",
-        "WSA",
-        "WebGL",
-        "WindowsStandalone32",
-        "WindowsStandalone64",
-        "XboxOne"
+        "Android"
     ],
     "allowUnsafeCode": false,
     "overrideReferences": false,
