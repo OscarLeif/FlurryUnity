@@ -30,7 +30,7 @@ This is a free plugin only Android implementation for Unity 3D.
 - You must first Initialize the Plugin.
 There's two ways to initialize:
   - Create a GameObejct and add the Component "FlurryAnalytics"
-    - Call the method FlurryAnalytics.Init();
+    - Call the method ```FlurryAnalytics.Init();```
   - You can call 
     ```sh
     FlurryAnalytics.Instance.Init(string flurryKeyDebug, string flurryKeyGoogle, string flurryKeyAmazon, string flurryKeyGalaxy)
