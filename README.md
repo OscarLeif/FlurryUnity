@@ -25,6 +25,7 @@ This is a free plugin only Android implementation for Unity 3D.
 
 
 # How to Use 
+## Analytics
 
 - You must first Initialize the Plugin.
 There's two ways to initialize:
@@ -32,12 +33,20 @@ There's two ways to initialize:
     - Call the method FlurryAnalytics.Init();
   - You can call 
     ```sh
-    FlurryAnalytics.Instance.Init(string debuKey string googlePlay, string AmazonKey, string galaxy)
+    FlurryAnalytics.Instance.Init(string flurryKeyDebug, string flurryKeyGoogle, string flurryKeyAmazon, string flurryKeyGalaxy)
     ```
 - Set Logs to Flurry
-  - ```Call FlurryAnalytics.Instance.Log(string eventName) ```
-  - ```Call FlurryAnalytics.Instance.Log(string eventName, bool recordEvent) ```
-  - ```Call FlurryAnalytics.Instance.EndLog(string eventName) ```
+  - ```Call FlurryAnalytics.Instance.LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false) ```
+  - ```Call FlurryAnalytics.Instance.EndTimeEvent(string eventName)```
+ 
+## Remote Configuration
+- You must setup you own flurry remote configuration. Each app key have his own configuration
+- If for any reason it's not possible to get remote data the Plugin will return default value. Check flurry website for more instrucctions
+- ```Call FlurryAnalytics.Instance.getRemoteString(string key, string defaultValue)```
+- ```Call FlurryAnalytics.Instance.getRemoteBool(string key, bool defaultValue)```
+- ```Call FlurryAnalytics.Instance.getRemoteInt(string key, int defaultValue)```
+- ```Call FlurryAnalytics.Instance.getRemoteFloat(string key,float defaultValue)```
+- ```Call FlurryAnalytics.Instance.getRemoteLong(string key, long defaultValue)```
 
 
 This is based from this project:
