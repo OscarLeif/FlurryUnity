@@ -2,10 +2,7 @@
     "name": "Flurry",
     "references": [],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
-    "excludePlatforms": [
-        "Android"
-    ],
+    "includePlatforms": [],    
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
