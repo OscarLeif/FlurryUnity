@@ -25,6 +25,9 @@ This is a free plugin only Android implementation for Unity 3D.
 
 
 # How to Use 
+
+You should first create a Flurry developer account and setup your app in the website.
+
 ## Analytics
 
 - You must first Initialize the Plugin.
