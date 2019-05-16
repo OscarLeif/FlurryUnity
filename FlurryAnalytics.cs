@@ -376,7 +376,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     public bool IsFireTV()
     {
-        if(_javaClass.CallStatic("IsAmazonFireTv"))
+        if(_javaClass.CallStatic<bool>("IsAmazonFireTv"))
         {
             return true;
         }
