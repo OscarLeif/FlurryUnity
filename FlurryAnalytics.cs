@@ -374,6 +374,18 @@ public class FlurryAnalytics : MonoBehaviour
         yield return null;
     }
 
+    public bool IsFireTV()
+    {
+        if(_javaClass.CallStatic("IsAmazonFireTv"))
+        {
+            return true;
+        }
+        else 
+        {
+            return false;
+        }
+    }
+
     #endregion
 
     #region Callbackclass
