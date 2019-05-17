@@ -373,14 +373,23 @@ public class FlurryAnalytics : MonoBehaviour
         a();
         yield return null;
     }
-
+    
+    /// If Platform is android check device.
+    /// Other platform return false
     public bool IsFireTV()
     {
-        if(_javaClass.CallStatic<bool>("IsAmazonFireTv"))
+        if (Application.platform == RuntimePlatform.Android)
         {
-            return true;
+            if (_javaClass.CallStatic<bool>("IsAmazonFireTv"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else 
+        else
         {
             return false;
         }
