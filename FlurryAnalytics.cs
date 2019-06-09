@@ -255,7 +255,12 @@ public class FlurryAnalytics : MonoBehaviour
     {
         if (Application.platform == RuntimePlatform.Android && Initialize)
         {
-            return _javaObject.Call<string>("getInstallerPackageName");
+            string installerPackageName = _javaObject.Call<string>("getInstallerPackageName");
+            if (installerPackageName != null)
+                return installerPackageName;
+            else
+                return "";
+            
         }
         else
         {
@@ -373,7 +378,7 @@ public class FlurryAnalytics : MonoBehaviour
         a();
         yield return null;
     }
-    
+
     /// If Platform is android check device.
     /// Other platform return false
     public bool IsFireTV()
@@ -420,6 +425,9 @@ public class FlurryAnalytics : MonoBehaviour
     }
     #endregion
 
+    public static readonly String AppStoreGoogle = "com.android.vending";
+    public static readonly String AmazonAppStore = "com.amazon.venezia";
+    public static readonly String SamsungGalaxyAppStore= "com.sec.android.app.samsungapps";
 }
 
 
