@@ -6,8 +6,6 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class SceneDemo : MonoBehaviour
 {
-    bool m_Start = false;
-
     #region Analytics
 
     public string customEvent = "Write Custom Event";
