@@ -264,7 +264,7 @@ public class FlurryAnalytics : MonoBehaviour
         }
         else
         {
-            return null;
+            return string.Empty;
         }
     }
 
