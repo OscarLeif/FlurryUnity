@@ -1,7 +1,9 @@
 {
     "name": "Flurry.Editor",
     "references": [],
-    "optionalUnityReferences": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [
         "Android",

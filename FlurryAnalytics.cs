@@ -245,33 +245,11 @@ public class FlurryAnalytics : MonoBehaviour
     }
     #endregion
 
-    #region AndroidExtras
-
-    /// <summary>
-    /// Can Return null, actually is not necessary to have this init
-    /// </summary>
-    /// <returns></returns>
-    public string GetInstallerPackageName()
-    {
-        if (Application.platform == RuntimePlatform.Android && Initialize)
-        {
-            string installerPackageName = _javaObject.Call<string>("getInstallerPackageName");
-            if (installerPackageName != null)
-                return installerPackageName;
-            else
-                return "";
-            
-        }
-        else
-        {
-            return string.Empty;
-        }
-    }
+    #region AndroidExtras    
 
     // Don't call this from using the Android callback, Need Safe Thread.
     public void AndroidShowToast(string message, bool useShortDuration = true)
     {
-
 #if UNITY_ANDROID
         //Safe Thread problems
         if (!Debug.isDebugBuild)
@@ -333,7 +311,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         if (!Exist())
         {
-            throw new Exception("Amazon as MainThreadDispatcher could not find the FlurryAnalytics Object. Please make ensure it exist");
+            throw new Exception("Flurry as MainThreadDispatcher could not find the FlurryAnalytics Object. Please make ensure it exist");
         }
         return _instance;
     }
@@ -377,28 +355,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         a();
         yield return null;
-    }
-
-    /// If Platform is android check device.
-    /// Other platform return false
-    public bool IsFireTV()
-    {
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            if (_javaClass.CallStatic<bool>("IsAmazonFireTv"))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
+    }    
 
     #endregion
 
@@ -424,10 +381,6 @@ public class FlurryAnalytics : MonoBehaviour
 
     }
     #endregion
-
-    public static readonly String AppStoreGoogle = "com.android.vending";
-    public static readonly String AmazonAppStore = "com.amazon.venezia";
-    public static readonly String SamsungGalaxyAppStore= "com.sec.android.app.samsungapps";
 }
 
 

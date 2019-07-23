@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [ExecuteInEditMode]
 public class SceneDemo : MonoBehaviour
 {
@@ -70,7 +69,7 @@ public class SceneDemo : MonoBehaviour
 
         this.customEvent = GUI.TextField(new Rect(Screen.width * 0.55f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), this.customEvent, customButtom);
 
-        GUI.Label(new Rect(Screen.width * 0.55f, Screen.height * 0.60f, Screen.width * 0.4f, Screen.height * 0.08f), FlurryAnalytics.Instance.Initialize ? FlurryAnalytics.Instance.GetInstallerPackageName() : "NO Initialize", customButtom);
+        GUI.Label(new Rect(Screen.width * 0.55f, Screen.height * 0.60f, Screen.width * 0.4f, Screen.height * 0.08f), FlurryAnalytics.Instance.Initialize ? "Initialize: True": "Initialize: False", customButtom);
 
         GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote String: " + this.remoteString, customButtom);
 
