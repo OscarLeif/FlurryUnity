@@ -196,24 +196,32 @@ public class FlurryAnalytics extends Fragment
 
     public String getInstallerPackageName()
     {
-        PackageManager pm = UnityPlayer.currentActivity.getPackageManager();
-        String installerPackageName = pm.getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
-
-        if(installerPackageName==null)
+        PackageManager pm = getActivity().getPackageManager();
+        String installerPackageName=null;
+        if(pm!=null)
         {
+            installerPackageName = pm.getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
 
+            if(installerPackageName==null)
+            {
+
+            }
+            if ("com.android.vending".equals(installerPackageName))
+            {
+                //do google things
+                return installerPackageName;
+            } else if ("com.amazon.venezia".equals(installerPackageName))
+            {
+                //do amazon things
+                return installerPackageName;
+            } else if ("com.sec.android.app.samsungapps".equals(installerPackageName))
+            {
+                //do samsung stuffs;
+            }
         }
-        if ("com.android.vending".equals(installerPackageName))
+        else
         {
-            //do google things
-            return installerPackageName;
-        } else if ("com.amazon.venezia".equals(installerPackageName))
-        {
-            //do amazon things
-            return installerPackageName;
-        } else if ("com.sec.android.app.samsungapps".equals(installerPackageName))
-        {
-            //do samsung stuffs;
+            Log.w(TAG , "WARNING PackageManager is returning null");
         }
         return installerPackageName;
     }
