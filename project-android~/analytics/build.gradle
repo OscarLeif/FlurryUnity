@@ -46,7 +46,7 @@ android.libraryVariants.all { variant ->
     // Target.
     //String targetAssetFolder = "Assets/Plugins/Flurry";
     String targetAssetFolder = "Plugins";
-    String targetAARFolder = "${rootDir.getPath()}/../../${targetAssetFolder}"; // Navigate into 'Assets'
+    String targetAARFolder = "${rootDir.getPath()}/../${targetAssetFolder}"; // Navigate into 'Assets'
     String targetAARName = "FlurryAnalytics.aar"; // The form you ship your plugin
 
     // Create task.
@@ -60,31 +60,4 @@ android.libraryVariants.all { variant ->
         include(sourceAARName)
         rename(sourceAARName, targetAARName)
     }.group = deployTaskGroup;
-
-    ////////////////////////
-
-    // Local Task
-    String deployTaskGroupLocal = "pluginLocal";
-    String deployTaskNameLocal = "deploy${variantName}PluginLocal"; // Like 'deployDebugPlugin'
-    String dependencyTaskNameLocal = "assemble${variantName}"; // Like 'assembleDebug'
-
-    // Source is the same
-
-    // Target Local
-    String targetAssetFolderLocal = "Assets/Plugins/Flurry";
-    String targetAARFolderLocal = "${rootDir.getPath()}/project-unity-flurry/${targetAssetFolderLocal}"; // Navigate into 'Assets'
-    //String targetAARName = "AmazonAds.aar"; // The form you ship your plugin
-
-    // Create Task Local Project
-    task(deployTaskNameLocal, dependsOn: dependencyTaskNameLocal, type: Copy)
-    {
-        logger.lifecycle("${variant.name.capitalize()} AAR Folder: ${sourceAARFolder}")
-        logger.lifecycle("${variant.name.capitalize()} Target AAR Folder: ${targetAARFolderLocal}")
-        logger.lifecycle("${variant.name.capitalize()} Target AAR name: ${targetAARName}")
-
-        from(sourceAARFolder)
-        into(targetAARFolderLocal)
-        include(sourceAARName)
-        rename(sourceAARName, targetAARName)
-    }.group = deployTaskGroupLocal;
 }
