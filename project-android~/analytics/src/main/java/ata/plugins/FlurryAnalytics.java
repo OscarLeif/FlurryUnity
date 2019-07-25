@@ -84,14 +84,21 @@ public class FlurryAnalytics extends Fragment
 
         String FlurryKey = "";
 
-        if ("com.android.vending".equals(this.getInstallerPackageName()))
-            FlurryKey = GooglePlayStoreKey;
-        else if ("com.amazon.venezia".equals(this.getInstallerPackageName()))
-            FlurryKey = AmazonAppStoreKey;
-        else if ("com.sec.android.app.samsungapps".equals(this.getInstallerPackageName()))
-            FlurryKey = SamsungGalaxyStoreKey;
-        else
+        if (this.getInstallerPackageName() != null)
+        {
+            if ("com.android.vending".equals(this.getInstallerPackageName()))
+                FlurryKey = GooglePlayStoreKey;
+            else if ("com.amazon.venezia".equals(this.getInstallerPackageName()))
+                FlurryKey = AmazonAppStoreKey;
+            else if ("com.sec.android.app.samsungapps".equals(this.getInstallerPackageName()))
+                FlurryKey = SamsungGalaxyStoreKey;
+            else
+                FlurryKey = DEBUG_FLURRY_API_KEY;
+        } else
+        {
             FlurryKey = DEBUG_FLURRY_API_KEY;
+        }
+
         try
         {
             new FlurryAgent.Builder()
@@ -119,7 +126,8 @@ public class FlurryAnalytics extends Fragment
                         }
                     })
                     .build(UnityPlayer.currentActivity, FlurryKey);
-        } catch (IllegalArgumentException e)
+        } catch (
+                IllegalArgumentException e)
         {
             Log.e(LOG_TAG, "The API KEY Cannot be empty");
         }
@@ -133,7 +141,8 @@ public class FlurryAnalytics extends Fragment
             String version = pInfo.versionName;
             FlurryAgent.setVersionName(version);
             Log.d(LOG_TAG, "onCreate: versionName: " + version);
-        } catch (PackageManager.NameNotFoundException e)
+        } catch (
+                PackageManager.NameNotFoundException e)
         {
             e.printStackTrace();
         }
@@ -145,85 +154,66 @@ public class FlurryAnalytics extends Fragment
         // flurry config
         mFlurryConfig = FlurryConfig.getInstance();
         // Setup Flurry Config
-        mFlurryConfigListener = new FlurryConfigListener()
-        {
-            //Called after config data is successfully loaded from server.
-            @Override
-            public void onFetchSuccess()
-            {
-                //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
-                mFlurryConfig.activateConfig();
-                Log.d(LOG_TAG, "Remote on fetch Success");
-                FlurryAnalytics.this.OnFetchSuccess = true;
-            }
+        mFlurryConfigListener = new
 
-            //Called with a fetch completes but no changes from server.
-            @Override
-            public void onFetchNoChange()
-            {
-                // Use the Config cached data if available
-                //Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG, "Remote on fetch no changes");
-                FlurryAnalytics.this.OnFetchSuccess = true;
-            }
+                FlurryConfigListener()
+                {
+                    //Called after config data is successfully loaded from server.
+                    @Override
+                    public void onFetchSuccess()
+                    {
+                        //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
+                        mFlurryConfig.activateConfig();
+                        Log.d(LOG_TAG, "Remote on fetch Success");
+                        FlurryAnalytics.this.OnFetchSuccess = true;
+                    }
 
-            //Called after config data is failed to load from server.
-            @Override
-            public void onFetchError(boolean isRetrying)
-            {
-                // Use the Config cached data if available
-                //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
-                FlurryAnalytics.instance.logEvent("Fetch Error");
-                FlurryAnalytics.this.OnFetchSuccess = false;
-                Log.d(LOG_TAG, "Remote on fetch error");
-            }
+                    //Called with a fetch completes but no changes from server.
+                    @Override
+                    public void onFetchNoChange()
+                    {
+                        // Use the Config cached data if available
+                        //Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
+                        Log.d(LOG_TAG, "Remote on fetch no changes");
+                        FlurryAnalytics.this.OnFetchSuccess = true;
+                    }
 
-            //Called after config data is activated.
-            @Override
-            public void onActivateComplete(boolean isCache)
-            {
-                //getConfigData();//Update remote values ?
-                FlurryAgent.logEvent("Remote Config Activated");
-                String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
-                //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG, "Remote on Activate Complete");
+                    //Called after config data is failed to load from server.
+                    @Override
+                    public void onFetchError(boolean isRetrying)
+                    {
+                        // Use the Config cached data if available
+                        //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
+                        FlurryAnalytics.instance.logEvent("Fetch Error");
+                        FlurryAnalytics.this.OnFetchSuccess = false;
+                        Log.d(LOG_TAG, "Remote on fetch error");
+                    }
 
-            }
-        };
+                    //Called after config data is activated.
+                    @Override
+                    public void onActivateComplete(boolean isCache)
+                    {
+                        //getConfigData();//Update remote values ?
+                        FlurryAgent.logEvent("Remote Config Activated");
+                        String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
+                        //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
+                        Log.d(LOG_TAG, "Remote on Activate Complete");
+
+                    }
+                }
+
+        ;
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
     }
 
+    /**
+     * A more simpler way to get installer packagename, can return null
+     * @return packageName, Null if no installer
+     */
     public String getInstallerPackageName()
     {
-        PackageManager pm = getActivity().getPackageManager();
-        String installerPackageName=null;
-        if(pm!=null)
-        {
-            installerPackageName = pm.getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
-
-            if(installerPackageName==null)
-            {
-
-            }
-            if ("com.android.vending".equals(installerPackageName))
-            {
-                //do google things
-                return installerPackageName;
-            } else if ("com.amazon.venezia".equals(installerPackageName))
-            {
-                //do amazon things
-                return installerPackageName;
-            } else if ("com.sec.android.app.samsungapps".equals(installerPackageName))
-            {
-                //do samsung stuffs;
-            }
-        }
-        else
-        {
-            Log.w(TAG , "WARNING PackageManager is returning null");
-        }
-        return installerPackageName;
+        return getActivity().getPackageManager().getInstallerPackageName(getActivity().getPackageName());
     }
 
     /**
@@ -254,7 +244,7 @@ public class FlurryAnalytics extends Fragment
 
         if (UnityPlayer.currentActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
         {
-            isFireTV=true;
+            isFireTV = true;
         }
         return isFireTV;
     }
