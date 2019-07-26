@@ -87,13 +87,18 @@ public class FlurryAnalytics extends Fragment
         if (this.getInstallerPackageName() != null)
         {
             if ("com.android.vending".equals(this.getInstallerPackageName()))
+            {
                 FlurryKey = GooglePlayStoreKey;
-            else if ("com.amazon.venezia".equals(this.getInstallerPackageName()))
+            } else if ("com.amazon.venezia".equals(this.getInstallerPackageName()))
+            {
                 FlurryKey = AmazonAppStoreKey;
-            else if ("com.sec.android.app.samsungapps".equals(this.getInstallerPackageName()))
+            } else if ("com.sec.android.app.samsungapps".equals(this.getInstallerPackageName()))
+            {
                 FlurryKey = SamsungGalaxyStoreKey;
-            else
+            } else
+            {
                 FlurryKey = DEBUG_FLURRY_API_KEY;
+            }
         } else
         {
             FlurryKey = DEBUG_FLURRY_API_KEY;
@@ -121,15 +126,19 @@ public class FlurryAnalytics extends Fragment
                                 }
                             });
                             Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
-                            logEvent("Installer: " + getInstallerPackageName());
+                            logEvent("Installer: " + getInstallerPackageName() == null ? "" : getInstallerPackageName());
                             LogAmazonFireTV();
                         }
                     })
                     .build(UnityPlayer.currentActivity, FlurryKey);
-        } catch (
-                IllegalArgumentException e)
+        }
+        catch (IllegalArgumentException e)
         {
             Log.e(LOG_TAG, "The API KEY Cannot be empty");
+        }
+        catch (NullPointerException e)
+        {
+            Log.e(LOG_TAG, e.getMessage());
         }
 
         //get version name
@@ -141,7 +150,8 @@ public class FlurryAnalytics extends Fragment
             String version = pInfo.versionName;
             FlurryAgent.setVersionName(version);
             Log.d(LOG_TAG, "onCreate: versionName: " + version);
-        } catch (
+        }
+        catch (
                 PackageManager.NameNotFoundException e)
         {
             e.printStackTrace();
@@ -209,11 +219,12 @@ public class FlurryAnalytics extends Fragment
 
     /**
      * A more simpler way to get installer packagename, can return null
+     *
      * @return packageName, Null if no installer
      */
     public String getInstallerPackageName()
     {
-        return getActivity().getPackageManager().getInstallerPackageName(getActivity().getPackageName());
+        return UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(getActivity().getPackageName());
     }
 
     /**
@@ -362,41 +373,56 @@ public class FlurryAnalytics extends Fragment
     public String getRemoteString(String key, String defaultValue)
     {
         if (this.OnFetchSuccess)
+        {
             return mFlurryConfig.getString(key, defaultValue);
-        else
+        } else
+        {
             return defaultValue;
+        }
     }
 
     public boolean getRemoteBool(String key, boolean defaultValue)
     {
         if (this.OnFetchSuccess)
+        {
             return mFlurryConfig.getBoolean(key, defaultValue);
-        else
+        } else
+        {
             return defaultValue;
+        }
     }
 
     public int getRemoteInt(String key, int defaultValue)
     {
         if (this.OnFetchSuccess)
+        {
             return mFlurryConfig.getInt(key, defaultValue);
-        else
+        } else
+        {
             return defaultValue;
+        }
     }
 
     public float getRemoteFloat(String key, float defaultValue)
     {
         if (this.OnFetchSuccess)
+        {
             return mFlurryConfig.getFloat(key, defaultValue);
-        else
+        } else
+        {
             return defaultValue;
+        }
     }
 
     public long getRemoteLong(String key, long defaultValue)
     {
         if (this.OnFetchSuccess)
+        {
             return mFlurryConfig.getLong(key, defaultValue);
-        else
+        } else
+        {
             return defaultValue;
+        }
     }
     //endregion
 
@@ -408,7 +434,7 @@ public class FlurryAnalytics extends Fragment
         UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);
     }
 
-// endregion
+    // endregion
 
     enum APPSTORE
     {
