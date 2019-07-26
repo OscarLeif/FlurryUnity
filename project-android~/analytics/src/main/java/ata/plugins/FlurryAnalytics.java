@@ -1,5 +1,6 @@
 package ata.plugins;
 
+import android.app.Application;
 import android.app.Fragment;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -208,18 +209,15 @@ public class FlurryAnalytics extends Fragment
                         String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
                         //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
                         Log.d(LOG_TAG, "Remote on Activate Complete");
-
                     }
                 }
-
         ;
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
     }
 
     /**
-     * A more simpler way to get installer packagename, can return null
-     *
+     * A more simpler way to get installer package name, can return null
      * @return packageName, Null if no installer
      */
     public String getInstallerPackageName()
@@ -233,6 +231,12 @@ public class FlurryAnalytics extends Fragment
      */
     public void LogAmazonFireTV()
     {
+        boolean isAmazonDevice = Build.MANUFACTURER.equalsIgnoreCase("amazon");
+
+        final Application application = UnityPlayer.currentActivity.getApplication();
+        String installerName = application.getPackageManager().getInstallerPackageName(application.getPackageName());
+        boolean fromAmazonStore = installerName != null && installerName.equalsIgnoreCase("com.amazon.venezia");
+
         final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
         String AMAZON_MODEL = Build.MODEL;
 
