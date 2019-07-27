@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -82,29 +83,39 @@ public class FlurryAnalytics extends Fragment
         Map<String, String> consentStrings = new HashMap<>();
         //consentStrings.put("IAB", "yes");
         //By default debug app key is the default if the app is side loaded.
+        final Application application = UnityPlayer.currentActivity.getApplication();
+        final String installerName = application.getPackageManager().getInstallerPackageName(application.getPackageName());
 
         String FlurryKey = "";
-
-        if (this.getInstallerPackageName() != null)
+        if (installerName != null)
         {
-            if ("com.android.vending".equals(this.getInstallerPackageName()))
+            if (installerName.equalsIgnoreCase(AndroidAppStoresID.GOOGLE_PLAY))
             {
                 FlurryKey = GooglePlayStoreKey;
-            } else if ("com.amazon.venezia".equals(this.getInstallerPackageName()))
+            } else if (installerName.equalsIgnoreCase(AndroidAppStoresID.AMAZON_APP_STORE))
             {
                 FlurryKey = AmazonAppStoreKey;
-            } else if ("com.sec.android.app.samsungapps".equals(this.getInstallerPackageName()))
+            } else if (installerName.equalsIgnoreCase(AndroidAppStoresID.GALAXY_APP_STORE))
             {
                 FlurryKey = SamsungGalaxyStoreKey;
             } else
             {
                 FlurryKey = DEBUG_FLURRY_API_KEY;
+                if (FlurryKey.equalsIgnoreCase(""))
+                {
+                    Log.w(LOG_TAG, "WARNING Flurry key is empty debug mode");
+                    FlurryKey = "FLURRY";
+                }
             }
         } else
         {
             FlurryKey = DEBUG_FLURRY_API_KEY;
+            if (FlurryKey.equalsIgnoreCase(""))
+            {
+                Log.w(LOG_TAG, "Warning Debug Key is empty set a not empty string");
+                FlurryKey = "Flurry";
+            }
         }
-
         try
         {
             new FlurryAgent.Builder()
@@ -127,17 +138,15 @@ public class FlurryAnalytics extends Fragment
                                 }
                             });
                             Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
-                            logEvent("Installer: " + getInstallerPackageName() == null ? "" : getInstallerPackageName());
+                            logEvent("Installer: " + installerName == null ? "" : installerName);
                             LogAmazonFireTV();
                         }
                     })
                     .build(UnityPlayer.currentActivity, FlurryKey);
-        }
-        catch (IllegalArgumentException e)
+        } catch (IllegalArgumentException e)
         {
             Log.e(LOG_TAG, "The API KEY Cannot be empty");
-        }
-        catch (NullPointerException e)
+        } catch (NullPointerException e)
         {
             Log.e(LOG_TAG, e.getMessage());
         }
@@ -151,8 +160,7 @@ public class FlurryAnalytics extends Fragment
             String version = pInfo.versionName;
             FlurryAgent.setVersionName(version);
             Log.d(LOG_TAG, "onCreate: versionName: " + version);
-        }
-        catch (
+        } catch (
                 PackageManager.NameNotFoundException e)
         {
             e.printStackTrace();
@@ -214,15 +222,7 @@ public class FlurryAnalytics extends Fragment
         ;
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
-    }
-
-    /**
-     * A more simpler way to get installer package name, can return null
-     * @return packageName, Null if no installer
-     */
-    public String getInstallerPackageName()
-    {
-        return UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(getActivity().getPackageName());
+        setRetainInstance(true); // Retain between configuration changes (like device rotation)
     }
 
     /**
@@ -263,7 +263,6 @@ public class FlurryAnalytics extends Fragment
         }
         return isFireTV;
     }
-
 
     @Override
     public void onStop()
@@ -440,26 +439,11 @@ public class FlurryAnalytics extends Fragment
 
     // endregion
 
-    enum APPSTORE
+    public static class AndroidAppStoresID
     {
-        GOOGLE_PLAY("com.android.vending"),
-        AMAZON_APPSTORE("com.amazon.venezia"),
-        GALAXY_APPSTORE("com.sec.android.app.samsungapps");
-
-        private final String name;
-
-        /**
-         * @param name
-         */
-        APPSTORE(final String name)
-        {
-            this.name = name;
-        }
-
-        public String getName()
-        {
-            return name;
-        }
+        public static final String GOOGLE_PLAY = "com.android.vending";
+        public static final String AMAZON_APP_STORE = "com.amazon.venecia";
+        public static final String GALAXY_APP_STORE = "com.sec.android.app.samsungapps";
     }
 }
 
