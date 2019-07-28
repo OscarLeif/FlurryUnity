@@ -2,6 +2,7 @@ package ata.plugins;
 
 import android.app.Application;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -83,8 +84,8 @@ public class FlurryAnalytics extends Fragment
         Map<String, String> consentStrings = new HashMap<>();
         //consentStrings.put("IAB", "yes");
         //By default debug app key is the default if the app is side loaded.
-        final Application application = UnityPlayer.currentActivity.getApplication();
-        final String installerName = application.getPackageManager().getInstallerPackageName(application.getPackageName());
+        //final Application application = UnityPlayer.currentActivity.getApplication();
+        final String installerName = UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
 
         String FlurryKey = "";
         if (installerName != null)
@@ -223,6 +224,12 @@ public class FlurryAnalytics extends Fragment
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
         setRetainInstance(true); // Retain between configuration changes (like device rotation)
+    }
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
     }
 
     /**
