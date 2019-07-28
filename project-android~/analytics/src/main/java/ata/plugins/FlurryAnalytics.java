@@ -33,6 +33,7 @@ public class FlurryAnalytics extends Fragment
     //Constants
     public static final String LOG_TAG = "Flurry Analytics";
 
+    private Context mContext;
     private String DEBUG_FLURRY_API_KEY = "NULL"; //Is set as empty the project crash
     private String GooglePlayStoreKey = "NULL";
     private String AmazonAppStoreKey = "NULL";
@@ -85,6 +86,10 @@ public class FlurryAnalytics extends Fragment
         //consentStrings.put("IAB", "yes");
         //By default debug app key is the default if the app is side loaded.
         //final Application application = UnityPlayer.currentActivity.getApplication();
+        if (UnityPlayer.currentActivity != null)
+        {
+            return;
+        }
         final String installerName = UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
 
         String FlurryKey = "";
@@ -230,6 +235,14 @@ public class FlurryAnalytics extends Fragment
     public void onAttach(Context context)
     {
         super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        mContext = null;
     }
 
     /**
@@ -263,7 +276,6 @@ public class FlurryAnalytics extends Fragment
 
         final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
         String AMAZON_MODEL = Build.MODEL;
-
         if (UnityPlayer.currentActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
         {
             isFireTV = true;
@@ -275,14 +287,20 @@ public class FlurryAnalytics extends Fragment
     public void onStop()
     {
         super.onStop();
-        FlurryAgent.onEndSession(UnityPlayer.currentActivity);
+        if(mContext!=null)
+        {
+            FlurryAgent.onEndSession(UnityPlayer.currentActivity);
+        }
     }
 
     @Override
     public void onDestroy()
     {
         super.onDestroy();
-        mFlurryConfig.unregisterListener(mFlurryConfigListener);
+        if(mContext!=null)
+        {
+            mFlurryConfig.unregisterListener(mFlurryConfigListener);
+        }
     }
 
     //endregion
