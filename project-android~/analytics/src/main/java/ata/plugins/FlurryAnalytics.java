@@ -71,6 +71,7 @@ public class FlurryAnalytics extends Fragment
 
             Log.d(LOG_TAG, "start: Method Called");
             UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            instance.onCreate(null);
         } else
         {
             Toast.makeText(UnityPlayer.currentActivity, "Already initialize", Toast.LENGTH_LONG).show();
@@ -86,7 +87,7 @@ public class FlurryAnalytics extends Fragment
         //consentStrings.put("IAB", "yes");
         //By default debug app key is the default if the app is side loaded.
         //final Application application = UnityPlayer.currentActivity.getApplication();
-        if (UnityPlayer.currentActivity != null)
+        if (UnityPlayer.currentActivity == null)
         {
             return;
         }
@@ -121,9 +122,11 @@ public class FlurryAnalytics extends Fragment
                 Log.w(LOG_TAG, "Warning Debug Key is empty set a not empty string");
                 FlurryKey = "Flurry";
             }
+            Log.d(LOG_TAG, "Initialize Debug Mode");
         }
         try
         {
+            Log.d(LOG_TAG,"Initialize FLurry Before Build");;
             new FlurryAgent.Builder()
                     .withLogEnabled(true)
                     .withCaptureUncaughtExceptions(true)
@@ -146,6 +149,7 @@ public class FlurryAnalytics extends Fragment
                             Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
                             logEvent("Installer: " + installerName == null ? "" : installerName);
                             LogAmazonFireTV();
+                            Log.d(LOG_TAG, "Flurry Initialize");
                         }
                     })
                     .build(UnityPlayer.currentActivity, FlurryKey);
