@@ -8,7 +8,6 @@
     "excludePlatforms": [
         "Android",
         "iOS",
-        "LinuxStandalone32",
         "LinuxStandalone64",
         "LinuxStandaloneUniversal",
         "Lumin",
