@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public static class UpdateWindow
 {
+#if UNITY_EDITOR
     [MenuItem("Tools/Flurry Plugin/Update Framework [GIT]", priority = -9)]
     public static void ShowWindow()
     {
@@ -48,4 +51,5 @@ public static class UpdateWindow
         AssetDatabase.Refresh(ImportAssetOptions.Default);
 
     }
+#endif
 }
