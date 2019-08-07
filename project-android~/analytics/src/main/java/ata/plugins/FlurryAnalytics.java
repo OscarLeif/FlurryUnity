@@ -1,13 +1,11 @@
 package ata.plugins;
 
-import android.app.Application;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,10 +40,11 @@ public class FlurryAnalytics extends Fragment
     //The name of the Unity game object that calls Flurry
     //Used for the Listener information form java side.
     private final static String UnityGameObjectName = "Flurry";
+    //Can return null, so Warning when compare this value. We just need to call it only once.
+    private String InstallerPackageName = null;
 
     //instance
     public static FlurryAnalytics instance;
-
     private FlurryCallback unityCallbackReference;
 
     // Unity context.
@@ -69,12 +68,20 @@ public class FlurryAnalytics extends Fragment
             instance.GooglePlayStoreKey = GooglePlayKey;
             instance.unityCallbackReference = callback;
 
+            instance.InstallerPackageName = UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
+
             Log.d(LOG_TAG, "start: Method Called");
-            UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
-            instance.onCreate(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            {
+                UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commitNow();
+            } else
+            {
+                UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            }
         } else
         {
-            Toast.makeText(UnityPlayer.currentActivity, "Already initialize", Toast.LENGTH_LONG).show();
+            //boolean isDebuggable =  ( 0 != ( getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
+            Toast.makeText(UnityPlayer.currentActivity, "Flurry Already initialize", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -83,156 +90,155 @@ public class FlurryAnalytics extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true); // Retain between configuration changes (like device rotation)
+
         Map<String, String> consentStrings = new HashMap<>();
         //consentStrings.put("IAB", "yes");
         //By default debug app key is the default if the app is side loaded.
         //final Application application = UnityPlayer.currentActivity.getApplication();
-        if (UnityPlayer.currentActivity == null)
+        if (UnityPlayer.currentActivity != null)
         {
-            return;
-        }
-        final String installerName = UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
-
-        String FlurryKey = "";
-        if (installerName != null)
-        {
-            if (installerName.equalsIgnoreCase(AndroidAppStoresID.GOOGLE_PLAY))
+            String FlurryKey = "";
+            if (InstallerPackageName != null)
             {
-                FlurryKey = GooglePlayStoreKey;
-            } else if (installerName.equalsIgnoreCase(AndroidAppStoresID.AMAZON_APP_STORE))
-            {
-                FlurryKey = AmazonAppStoreKey;
-            } else if (installerName.equalsIgnoreCase(AndroidAppStoresID.GALAXY_APP_STORE))
-            {
-                FlurryKey = SamsungGalaxyStoreKey;
+                if (InstallerPackageName.equalsIgnoreCase(AndroidAppStoresID.GOOGLE_PLAY))
+                {
+                    FlurryKey = GooglePlayStoreKey;
+                } else if (InstallerPackageName.equalsIgnoreCase(AndroidAppStoresID.AMAZON_APP_STORE))
+                {
+                    FlurryKey = AmazonAppStoreKey;
+                } else if (InstallerPackageName.equalsIgnoreCase(AndroidAppStoresID.GALAXY_APP_STORE))
+                {
+                    FlurryKey = SamsungGalaxyStoreKey;
+                } else
+                {
+                    FlurryKey = DEBUG_FLURRY_API_KEY;
+                    if (FlurryKey.equalsIgnoreCase(""))
+                    {
+                        Log.w(LOG_TAG, "WARNING Flurry key is empty debug mode");
+                        FlurryKey = "FLURRY";
+                    }
+                }
             } else
             {
                 FlurryKey = DEBUG_FLURRY_API_KEY;
                 if (FlurryKey.equalsIgnoreCase(""))
                 {
-                    Log.w(LOG_TAG, "WARNING Flurry key is empty debug mode");
-                    FlurryKey = "FLURRY";
+                    Log.w(LOG_TAG, "Warning Debug Key is empty set a not empty string");
+                    FlurryKey = "Flurry";
                 }
+                Log.d(LOG_TAG, "Initialize Debug Mode");
             }
-        } else
-        {
-            FlurryKey = DEBUG_FLURRY_API_KEY;
-            if (FlurryKey.equalsIgnoreCase(""))
+            try
             {
-                Log.w(LOG_TAG, "Warning Debug Key is empty set a not empty string");
-                FlurryKey = "Flurry";
-            }
-            Log.d(LOG_TAG, "Initialize Debug Mode");
-        }
-        try
-        {
-            Log.d(LOG_TAG,"Initialize FLurry Before Build");;
-            new FlurryAgent.Builder()
-                    .withLogEnabled(true)
-                    .withCaptureUncaughtExceptions(true)
-                    .withContinueSessionMillis(10000)
-                    .withLogLevel(VERBOSE)
-                    //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
-                    .withListener(new FlurryAgentListener()
-                    {
-                        @Override
-                        public void onSessionStarted()
+                Log.d(LOG_TAG, "Initialize FLurry Before Build");
+                ;
+                new FlurryAgent.Builder()
+                        .withLogEnabled(true)
+                        .withCaptureUncaughtExceptions(true)
+                        .withContinueSessionMillis(10000)
+                        .withLogLevel(VERBOSE)
+                        //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
+                        .withListener(new FlurryAgentListener()
                         {
-                            UnityPlayer.currentActivity.runOnUiThread(new Runnable()
+                            @Override
+                            public void onSessionStarted()
                             {
-                                @Override
-                                public void run()
+                                UnityPlayer.currentActivity.runOnUiThread(new Runnable()
                                 {
-                                    unityCallbackReference.onInitialize(true);
-                                }
-                            });
-                            Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
-                            logEvent("Installer: " + installerName == null ? "" : installerName);
-                            LogAmazonFireTV();
-                            Log.d(LOG_TAG, "Flurry Initialize");
+                                    @Override
+                                    public void run()
+                                    {
+                                        unityCallbackReference.onInitialize(true);
+                                    }
+                                });
+                                Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
+                                logEvent("Installer: " + InstallerPackageName == null ? "" : InstallerPackageName);
+                                LogAmazonFireTV();
+                                Log.d(LOG_TAG, "Flurry Initialize");
+                            }
+                        })
+                        .build(UnityPlayer.currentActivity, FlurryKey);
+            } catch (IllegalArgumentException e)
+            {
+                Log.e(LOG_TAG, "The API KEY Cannot be empty");
+            } catch (NullPointerException e)
+            {
+                Log.e(LOG_TAG, e.getMessage());
+            }
+
+            //get version name
+            try
+            {
+                PackageInfo pInfo = UnityPlayer.currentActivity
+                        .getPackageManager()
+                        .getPackageInfo(UnityPlayer.currentActivity.getPackageName(), 0);
+                String version = pInfo.versionName;
+                FlurryAgent.setVersionName(version);
+                Log.d(LOG_TAG, "onCreate: versionName: " + version);
+            } catch (
+                    PackageManager.NameNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+            FlurryAgent.onStartSession(UnityPlayer.currentActivity);
+
+            Log.d(LOG_TAG, "onCreate: Method Called");
+            Log.d(LOG_TAG, "onCreate: KEY :" + DEBUG_FLURRY_API_KEY);
+
+            // flurry config
+            mFlurryConfig = FlurryConfig.getInstance();
+            // Setup Flurry Config
+            mFlurryConfigListener = new
+
+                    FlurryConfigListener()
+                    {
+                        //Called after config data is successfully loaded from server.
+                        @Override
+                        public void onFetchSuccess()
+                        {
+                            //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
+                            mFlurryConfig.activateConfig();
+                            Log.d(LOG_TAG, "Remote on fetch Success");
+                            FlurryAnalytics.this.OnFetchSuccess = true;
                         }
-                    })
-                    .build(UnityPlayer.currentActivity, FlurryKey);
-        } catch (IllegalArgumentException e)
-        {
-            Log.e(LOG_TAG, "The API KEY Cannot be empty");
-        } catch (NullPointerException e)
-        {
-            Log.e(LOG_TAG, e.getMessage());
+
+                        //Called with a fetch completes but no changes from server.
+                        @Override
+                        public void onFetchNoChange()
+                        {
+                            // Use the Config cached data if available
+                            //Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
+                            Log.d(LOG_TAG, "Remote on fetch no changes");
+                            FlurryAnalytics.this.OnFetchSuccess = true;
+                        }
+
+                        //Called after config data is failed to load from server.
+                        @Override
+                        public void onFetchError(boolean isRetrying)
+                        {
+                            // Use the Config cached data if available
+                            //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
+                            FlurryAnalytics.instance.logEvent("Fetch Error");
+                            FlurryAnalytics.this.OnFetchSuccess = false;
+                            Log.d(LOG_TAG, "Remote on fetch error");
+                        }
+
+                        //Called after config data is activated.
+                        @Override
+                        public void onActivateComplete(boolean isCache)
+                        {
+                            //getConfigData();//Update remote values ?
+                            FlurryAgent.logEvent("Remote Config Activated");
+                            String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
+                            //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
+                            Log.d(LOG_TAG, "Remote on Activate Complete");
+                        }
+                    }
+            ;
+            mFlurryConfig.registerListener(mFlurryConfigListener);
+            mFlurryConfig.fetchConfig();
         }
-
-        //get version name
-        try
-        {
-            PackageInfo pInfo = UnityPlayer.currentActivity
-                    .getPackageManager()
-                    .getPackageInfo(UnityPlayer.currentActivity.getPackageName(), 0);
-            String version = pInfo.versionName;
-            FlurryAgent.setVersionName(version);
-            Log.d(LOG_TAG, "onCreate: versionName: " + version);
-        } catch (
-                PackageManager.NameNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        FlurryAgent.onStartSession(UnityPlayer.currentActivity);
-
-        Log.d(LOG_TAG, "onCreate: Method Called");
-        Log.d(LOG_TAG, "onCreate: KEY :" + DEBUG_FLURRY_API_KEY);
-
-        // flurry config
-        mFlurryConfig = FlurryConfig.getInstance();
-        // Setup Flurry Config
-        mFlurryConfigListener = new
-
-                FlurryConfigListener()
-                {
-                    //Called after config data is successfully loaded from server.
-                    @Override
-                    public void onFetchSuccess()
-                    {
-                        //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Success", Toast.LENGTH_SHORT).show();
-                        mFlurryConfig.activateConfig();
-                        Log.d(LOG_TAG, "Remote on fetch Success");
-                        FlurryAnalytics.this.OnFetchSuccess = true;
-                    }
-
-                    //Called with a fetch completes but no changes from server.
-                    @Override
-                    public void onFetchNoChange()
-                    {
-                        // Use the Config cached data if available
-                        //Toast.makeText(UnityPlayer.currentActivity, "Fetch - No Change", Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, "Remote on fetch no changes");
-                        FlurryAnalytics.this.OnFetchSuccess = true;
-                    }
-
-                    //Called after config data is failed to load from server.
-                    @Override
-                    public void onFetchError(boolean isRetrying)
-                    {
-                        // Use the Config cached data if available
-                        //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
-                        FlurryAnalytics.instance.logEvent("Fetch Error");
-                        FlurryAnalytics.this.OnFetchSuccess = false;
-                        Log.d(LOG_TAG, "Remote on fetch error");
-                    }
-
-                    //Called after config data is activated.
-                    @Override
-                    public void onActivateComplete(boolean isCache)
-                    {
-                        //getConfigData();//Update remote values ?
-                        FlurryAgent.logEvent("Remote Config Activated");
-                        String message = "Config Activated: " + (isCache ? "Cache" : "Fetch");
-                        //Toast.makeText(UnityPlayer.currentActivity, message, Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, "Remote on Activate Complete");
-                    }
-                }
-        ;
-        mFlurryConfig.registerListener(mFlurryConfigListener);
-        mFlurryConfig.fetchConfig();
-        setRetainInstance(true); // Retain between configuration changes (like device rotation)
     }
 
     @Override
@@ -257,10 +263,8 @@ public class FlurryAnalytics extends Fragment
     {
         boolean isAmazonDevice = Build.MANUFACTURER.equalsIgnoreCase("amazon");
 
-        final Application application = UnityPlayer.currentActivity.getApplication();
-        String installerName = application.getPackageManager().getInstallerPackageName(application.getPackageName());
-        boolean fromAmazonStore = installerName != null && installerName.equalsIgnoreCase("com.amazon.venezia");
-
+        //final Application application = UnityPlayer.currentActivity.getApplication();
+        boolean fromAmazonStore = InstallerPackageName != null && InstallerPackageName.equalsIgnoreCase(AndroidAppStoresID.AMAZON_APP_STORE);
         final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
         String AMAZON_MODEL = Build.MODEL;
 
@@ -274,24 +278,11 @@ public class FlurryAnalytics extends Fragment
         }
     }
 
-    public static boolean IsAmazonFireTv()
-    {
-        boolean isFireTV = false;
-
-        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
-        String AMAZON_MODEL = Build.MODEL;
-        if (UnityPlayer.currentActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
-        {
-            isFireTV = true;
-        }
-        return isFireTV;
-    }
-
     @Override
     public void onStop()
     {
         super.onStop();
-        if(mContext!=null)
+        if (mContext != null)
         {
             FlurryAgent.onEndSession(UnityPlayer.currentActivity);
         }
@@ -301,7 +292,7 @@ public class FlurryAnalytics extends Fragment
     public void onDestroy()
     {
         super.onDestroy();
-        if(mContext!=null)
+        if (mContext != null)
         {
             mFlurryConfig.unregisterListener(mFlurryConfigListener);
         }

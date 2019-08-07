@@ -49,7 +49,6 @@ public static class UpdateWindow
         }
 
         AssetDatabase.Refresh(ImportAssetOptions.Default);
-
     }
 #endif
 }

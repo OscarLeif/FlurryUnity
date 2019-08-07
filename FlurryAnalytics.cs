@@ -91,6 +91,7 @@ public class FlurryAnalytics : MonoBehaviour
 
     public string flurryKeyGalaxy;
 
+    [HideInInspector]
     public bool Initialize = false;
 
     #endregion
