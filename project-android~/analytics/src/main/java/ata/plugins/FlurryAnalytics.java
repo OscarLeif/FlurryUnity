@@ -71,12 +71,17 @@ public class FlurryAnalytics extends Fragment
             instance.InstallerPackageName = UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
 
             Log.d(LOG_TAG, "start: Method Called");
-
-            UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            {
+                UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commitNow();
+            } else
+            {
+                UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            }
         } else
         {
             //boolean isDebuggable =  ( 0 != ( getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
-            Toast.makeText(UnityPlayer.currentActivity, "Flurry Already initialize", Toast.LENGTH_LONG).show();
+            //Toast.makeText(UnityPlayer.currentActivity, "Flurry Already initialize", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -154,12 +159,10 @@ public class FlurryAnalytics extends Fragment
                             }
                         })
                         .build(UnityPlayer.currentActivity, FlurryKey);
-            }
-            catch (IllegalArgumentException e)
+            } catch (IllegalArgumentException e)
             {
                 Log.e(LOG_TAG, "The API KEY Cannot be empty");
-            }
-            catch (NullPointerException e)
+            } catch (NullPointerException e)
             {
                 Log.e(LOG_TAG, e.getMessage());
             }
@@ -173,8 +176,7 @@ public class FlurryAnalytics extends Fragment
                 String version = pInfo.versionName;
                 FlurryAgent.setVersionName(version);
                 Log.d(LOG_TAG, "onCreate: versionName: " + version);
-            }
-            catch (
+            } catch (
                     PackageManager.NameNotFoundException e)
             {
                 e.printStackTrace();

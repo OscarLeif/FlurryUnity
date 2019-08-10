@@ -28,7 +28,7 @@ dependencies {
     //compile fileTree(dir: 'libs', include: ['*.jar'])
     // Avoid redundant Unity Player in final application APK
     compileOnly files('./libs/UnityPlayer.jar')
-    implementation files('./libs/flurryAnalytics_11.6.0.jar')
+    implementation files('./libs/flurryAnalytics_11.7.1.jar')
 }
 
 android.libraryVariants.all { variant ->
