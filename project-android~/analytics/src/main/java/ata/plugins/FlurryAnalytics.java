@@ -71,14 +71,10 @@ public class FlurryAnalytics extends Fragment
             instance.InstallerPackageName = UnityPlayer.currentActivity.getPackageManager().getInstallerPackageName(UnityPlayer.currentActivity.getPackageName());
 
             Log.d(LOG_TAG, "start: Method Called");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            {
-                UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commitNow();
-            } else
-            {
-                UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
-            }
-        } else
+
+            UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+        }
+        else
         {
             //boolean isDebuggable =  ( 0 != ( getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
             //Toast.makeText(UnityPlayer.currentActivity, "Flurry Already initialize", Toast.LENGTH_LONG).show();
