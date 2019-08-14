@@ -91,6 +91,9 @@ public class FlurryAnalytics : MonoBehaviour
 
     public string flurryKeyGalaxy;
 
+    //The actual Flurry key to use in the Plugin
+    private string FlurryKey;
+
     [HideInInspector]
     public bool Initialize = false;
 
@@ -108,7 +111,7 @@ public class FlurryAnalytics : MonoBehaviour
         if (Application.platform == RuntimePlatform.Android)
         {
             _javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
-            _javaClass.CallStatic("start", flurryKeyDebug, flurryKeyGoogle, flurryKeyAmazon, flurryKeyGalaxy, new AndroidPluginCallback(this));
+            _javaClass.CallStatic("start", gameObject.name, FlurryKey, new AndroidPluginCallback(this));
         }
 #endif
     }
@@ -120,6 +123,35 @@ public class FlurryAnalytics : MonoBehaviour
         this.flurryKeyDebug = flurryKeyDebug;
         this.flurryKeyGoogle = flurryKeyGoogle;
         this.flurryKeyAmazon = flurryKeyAmazon;
+
+        //Identify where is this app instaled from
+        string tmp = GetInstallerPackage();
+        if(tmp!=null && !tmp.Equals(""))
+        {
+            if(tmp.Equals("com.android.vending"))
+            {
+                this.FlurryKey = flurryKeyGoogle;
+            }
+            else if(tmp.Equals("com.amazon.venezia"))
+            {
+                this.FlurryKey = flurryKeyAmazon;
+            }
+            else if(tmp.Equals("com.sec.android.app.samsungapps"))
+            {
+                this.FlurryKey = flurryKeyGalaxy;
+            }
+            else
+            {
+                //The app store is unknown
+                this.FlurryKey = flurryKeyDebug;
+            }
+        }
+        else
+        {
+            //Debug Mode
+            this.FlurryKey = flurryKeyDebug;
+        }
+
         this.Init();
     }
 
@@ -294,6 +326,32 @@ public class FlurryAnalytics : MonoBehaviour
 
         return javaObject;
     }
+
+    /// <summary>
+    /// Can return Null.
+    /// </summary>
+    /// <returns></returns>
+    public static String GetInstallerPackage()
+    {
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            AndroidJavaClass up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject ca = up.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaObject packageManager = ca.Call<AndroidJavaObject>("getPackageManager");
+            String installerName = packageManager.Call<String>("getInstallerPackageName", Application.identifier);
+
+            // getInstallerPackageName() Can return null. To avoid if (a==null return empty)
+            if (installerName == null)
+            {
+                return String.Empty;
+            }
+
+            return installerName;
+        }
+#endif
+        return String.Empty;
+    }
     #endregion
 
     #region ThreadDispatcher
@@ -356,7 +414,7 @@ public class FlurryAnalytics : MonoBehaviour
     {
         a();
         yield return null;
-    }    
+    }
 
     #endregion
 
