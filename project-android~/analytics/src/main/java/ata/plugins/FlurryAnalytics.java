@@ -130,7 +130,7 @@ public class FlurryAnalytics extends Fragment
                     {
                         // Use the Config cached data if available
                         //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
-                        FlurryAnalytics.instance.logEvent("Fetch Error");
+                        //FlurryAnalytics.instance.logEvent("Fetch Error");
                         FlurryAnalytics.this.OnFetchSuccess = false;
                         Log.d(LOG_TAG, "Remote on fetch error");
                     }

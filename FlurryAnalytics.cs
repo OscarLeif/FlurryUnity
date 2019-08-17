@@ -123,20 +123,21 @@ public class FlurryAnalytics : MonoBehaviour
         this.flurryKeyDebug = flurryKeyDebug;
         this.flurryKeyGoogle = flurryKeyGoogle;
         this.flurryKeyAmazon = flurryKeyAmazon;
+        this.flurryKeyGalaxy = flurryKeyGalaxy;
 
         //Identify where is this app instaled from
         string tmp = GetInstallerPackage();
-        if(tmp!=null && !tmp.Equals(""))
+        if (tmp != null && !tmp.Equals(""))
         {
-            if(tmp.Equals("com.android.vending"))
+            if (tmp.Equals("com.android.vending"))
             {
                 this.FlurryKey = flurryKeyGoogle;
             }
-            else if(tmp.Equals("com.amazon.venezia"))
+            else if (tmp.Equals("com.amazon.venezia"))
             {
                 this.FlurryKey = flurryKeyAmazon;
             }
-            else if(tmp.Equals("com.sec.android.app.samsungapps"))
+            else if (tmp.Equals("com.sec.android.app.samsungapps"))
             {
                 this.FlurryKey = flurryKeyGalaxy;
             }
