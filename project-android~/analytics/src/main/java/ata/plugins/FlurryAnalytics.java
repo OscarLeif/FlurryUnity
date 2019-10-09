@@ -1,101 +1,139 @@
 package ata.plugins;
 
-// Features.
-
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
-import java.util.Map;
-
-// Unity.
 import com.flurry.android.FlurryAgent;
-import com.flurry.android.FlurryAgentListener;
 import com.flurry.android.FlurryConfig;
 import com.flurry.android.FlurryConfigListener;
-import com.unity3d.player.UnityPlayer;
 
-// Debug.
-import android.util.Log;
+import java.util.HashMap;
+import java.util.Map;
 
-
-// Flurry
+import static android.content.ContentValues.TAG;
+import static android.util.Log.VERBOSE;
 
 /**
  * Created by OscarLeif on 5/6/2017.
- * Update 14 August 2019
+ * Update 10 April 2019
  */
 
 public class FlurryAnalytics extends Fragment
 {
-    // Constants.
-    public static final String TAG = "Flurry_Analytics_Frag";
+    //Constants
+    public static final String LOG_TAG = "Flurry Analytics";
 
-    //Singleton instance.
-    private static FlurryAnalytics instance;
+    private Activity unityActivity;
+    private String flurryKey = "NULL"; //Is set as empty the project crash
+
+
+    //The name of the Unity game object that calls Flurry
+    //Used for the Listener information form java side.
+    private final static String UnityGameObjectName = "Flurry";
+
+    //instance
+    public static FlurryAnalytics instance;
+
     private FlurryCallback unityCallbackReference;
 
-    private String FLURRY_API_KEY = "NULL";
+    // Unity context.
+    private String gameObjectName;
 
     //Remote Config
     private FlurryConfig mFlurryConfig;
     private FlurryConfigListener mFlurryConfigListener;
     private boolean OnFetchSuccess = false;
 
-    // Unity context.
-    String gameObjectName;
-
-    public static void start(String gameObjectName, String FlurryKey,FlurryCallback callback)
+    public static void start(Activity unityActivity, String flurryKey, FlurryCallback callback)
     {
-        instance = new FlurryAnalytics();
-        instance.FLURRY_API_KEY = FlurryKey;
-        instance.gameObjectName = gameObjectName; // Store `GameObject` reference
-        instance.unityCallbackReference = callback;
-        UnityPlayer.currentActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.TAG).commit();
+        // Instantiate and add Unity Player Activity;
+        if (instance == null)
+        {
+            instance = new FlurryAnalytics();
+            instance.unityActivity = unityActivity;
+            instance.gameObjectName = "Flurry";
+            instance.flurryKey = flurryKey;
+            instance.unityCallbackReference = callback;
+
+            Log.d(LOG_TAG, "start: Method Called");
+            unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            instance.onCreate(null);
+        } else
+        {
+            Toast.makeText(unityActivity, "Already initialize", Toast.LENGTH_LONG).show();
+        }
     }
 
-    //region Android LifeCycle
-
+    //region Activity LifeCycle
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true); // Retain between configuration changes (like device rotation)
+        Map<String, String> consentStrings = new HashMap<>();
+        //consentStrings.put("IAB", "yes");
+        //By default debug app key is the default if the app is side loaded.
+        //final Application application = UnityPlayer.currentActivity.getApplication();
+        if (unityActivity == null)
+        {
+            return;
+        }
+        //final String installerName = unityActivity.getPackageManager().getInstallerPackageName(unityActivity.getPackageName());
 
-        new FlurryAgent.Builder()
-                .withLogEnabled(true)
-                .withCaptureUncaughtExceptions(true)
-                .withContinueSessionMillis(10000)
-                .withLogLevel(Log.VERBOSE)
-                .withListener
-                        (
-                                new FlurryAgentListener()
-                                {
-                                    @Override
-                                    public void onSessionStarted()
-                                    {
-                                        unityCallbackReference.onInitialize(true);
-                                    }
-                                }
-                        )
-                .build(UnityPlayer.currentActivity.getApplicationContext(), FLURRY_API_KEY);
-        Log.d(TAG, "Flurry Initialize");
-        PackageInfo pInfo = null;
+        String FlurryKey = this.flurryKey;
+        if(FlurryKey.isEmpty())
+        {
+            FlurryKey = "NULL";
+        }
         try
         {
-            pInfo = UnityPlayer.currentActivity
+            Log.d(LOG_TAG,"Initialize FLurry Before Build");
+            new FlurryAgent.Builder()
+                    .withLogEnabled(true)
+                    .withCaptureUncaughtExceptions(true)
+                    .withContinueSessionMillis(10000)
+                    .withLogLevel(VERBOSE)
+                    //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
+                    .withListener(() -> {
+                        unityActivity.runOnUiThread(() -> unityCallbackReference.onInitialize(true));
+                        Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
+                        //logEvent("Installer: " + installerName == null ? "" : installerName);
+                        Log.d(LOG_TAG, "Flurry Initialize");
+                    })
+                    .build(unityActivity, FlurryKey);
+        } catch (IllegalArgumentException e)
+        {
+            Log.e(LOG_TAG, "The API KEY Cannot be empty");
+        } catch (NullPointerException e)
+        {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        //get version name
+        try
+        {
+            PackageInfo pInfo = unityActivity
                     .getPackageManager()
-                    .getPackageInfo(UnityPlayer.currentActivity.getPackageName(), 0);
+                    .getPackageInfo(unityActivity.getPackageName(), 0);
             String version = pInfo.versionName;
             FlurryAgent.setVersionName(version);
-        }
-        catch (PackageManager.NameNotFoundException e)
+            Log.d(LOG_TAG, "onCreate: versionName: " + version);
+        } catch (
+                PackageManager.NameNotFoundException e)
         {
             e.printStackTrace();
         }
+        FlurryAgent.onStartSession(unityActivity);
+
+        Log.d(LOG_TAG, "onCreate: Method Called");
+        Log.d(LOG_TAG, "onCreate: KEY :" + flurryKey);
 
         // flurry config
         mFlurryConfig = FlurryConfig.getInstance();
@@ -130,7 +168,7 @@ public class FlurryAnalytics extends Fragment
                     {
                         // Use the Config cached data if available
                         //Toast.makeText(UnityPlayer.currentActivity, "Fetch - Error", Toast.LENGTH_SHORT).show();
-                        //FlurryAnalytics.instance.logEvent("Fetch Error");
+                        FlurryAnalytics.instance.logEvent("Fetch Error");
                         FlurryAnalytics.this.OnFetchSuccess = false;
                         Log.d(LOG_TAG, "Remote on fetch error");
                     }
@@ -149,6 +187,7 @@ public class FlurryAnalytics extends Fragment
         ;
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
+        setRetainInstance(true); // Retain between configuration changes (like device rotation)
     }
 
     @Override
@@ -163,9 +202,54 @@ public class FlurryAnalytics extends Fragment
         super.onDetach();
     }
 
-    //endregion
+    /**
+     * If Device is an Amazon Fire TV lets Log the Name of the Fire TV.
+     * If the device is new, need to update the List. Remember Fire TV
+     */
+    public void LogAmazonFireTV()
+    {
+        boolean isAmazonDevice = Build.MANUFACTURER.equalsIgnoreCase("amazon");
 
-    public static final String LOG_TAG = "Flurry Analytics";
+        final Application application = unityActivity.getApplication();
+        String installerName = application.getPackageManager().getInstallerPackageName(application.getPackageName());
+        boolean fromAmazonStore = installerName != null && installerName.equalsIgnoreCase("com.amazon.venezia");
+
+        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
+        String AMAZON_MODEL = Build.MODEL;
+
+        if (unityActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
+        {
+            Log.v(TAG, "Yes, this is a Fire TV device.");
+            FlurryAnalytics.instance.logEvent("Fire TV Model: " + AMAZON_MODEL);
+        } else
+        {
+            Log.v(TAG, "No, this is not a Fire TV device");
+        }
+    }
+
+
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        if(unityActivity!=null)
+        {
+            FlurryAgent.onEndSession(unityActivity);
+        }
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if(unityActivity!=null)
+        {
+            mFlurryConfig.unregisterListener(mFlurryConfigListener);
+        }
+    }
+
+    //endregion
 
     /**
      * Logs an event for analytics.
@@ -174,8 +258,6 @@ public class FlurryAnalytics extends Fragment
      * @param eventParams event parameters (can be null)
      * @param timed       <code>true</code> if the event should be timed, false otherwise
      */
-
-    //endegion
     public void logEvent(String eventName, Map<String, String> eventParams, boolean timed)
     {
         FlurryAgent.logEvent(eventName, eventParams, timed);
@@ -320,10 +402,11 @@ public class FlurryAnalytics extends Fragment
 
     // region Unity Utilities
 
+    //Since we don't use UnityActivity this cannot be done
     private void SendUnityMessage(String methodName, String parameter)
     {
         Log.i(LOG_TAG, LOG_TAG + "SendUnityMessage(`" + methodName + "`, `" + parameter + "`)");
-        UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);
+        //UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);
     }
 
     // endregion
@@ -340,3 +423,6 @@ interface FlurryCallback
 {
     void onInitialize(boolean isInit);
 }
+
+
+
