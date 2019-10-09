@@ -5,7 +5,7 @@ This is a free plugin only Android implementation for Unity 3D.
 # Features
 - Analytics and Remote configuration
 - Lightweight 
-- Support most of all Untiy android project
+- Support most of all Unity android project
 - No override of the Unity Main activity
 ----
 # Requierements
@@ -31,12 +31,9 @@ You should first create a Flurry developer account and setup your app in the web
 ## Analytics
 
 - You must first Initialize the Plugin.
-There's two ways to initialize:
-  - Create a GameObejct and add the Component "FlurryAnalytics"
-    - Call the method ```FlurryAnalytics.Init();```
-  - You can call 
+  - Call this only once.
     ```sh
-    FlurryAnalytics.Instance.Init(string flurryKeyDebug, string flurryKeyGoogle, string flurryKeyAmazon, string flurryKeyGalaxy)
+    FlurryAnalytics.Instance.Init(string flurryKeyDebug)
     ```
 - Set Logs to Flurry
   - ```Call FlurryAnalytics.Instance.LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false) ```
