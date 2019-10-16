@@ -1,12 +1,10 @@
 package ata.plugins;
 
 import android.app.Activity;
-import android.app.Application;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -18,7 +16,6 @@ import com.flurry.android.FlurryConfigListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 import static android.util.Log.VERBOSE;
 
 /**
@@ -202,33 +199,6 @@ public class FlurryAnalytics extends Fragment
         super.onDetach();
     }
 
-    /**
-     * If Device is an Amazon Fire TV lets Log the Name of the Fire TV.
-     * If the device is new, need to update the List. Remember Fire TV
-     */
-    public void LogAmazonFireTV()
-    {
-        boolean isAmazonDevice = Build.MANUFACTURER.equalsIgnoreCase("amazon");
-
-        final Application application = unityActivity.getApplication();
-        String installerName = application.getPackageManager().getInstallerPackageName(application.getPackageName());
-        boolean fromAmazonStore = installerName != null && installerName.equalsIgnoreCase("com.amazon.venezia");
-
-        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
-        String AMAZON_MODEL = Build.MODEL;
-
-        if (unityActivity.getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV))
-        {
-            Log.v(TAG, "Yes, this is a Fire TV device.");
-            FlurryAnalytics.instance.logEvent("Fire TV Model: " + AMAZON_MODEL);
-        } else
-        {
-            Log.v(TAG, "No, this is not a Fire TV device");
-        }
-    }
-
-
-
     @Override
     public void onStop()
     {
@@ -304,25 +274,6 @@ public class FlurryAnalytics extends Fragment
     public void logError(String errorId, String errorDescription, Throwable throwable)
     {
         FlurryAgent.onError(errorId, errorDescription, throwable);
-    }
-
-    /**
-     * Logs location.
-     *
-     * @param latitude  latitude of location
-     * @param longitude longitude of location
-     */
-    public void logLocation(double latitude, double longitude)
-    {
-        FlurryAgent.setLocation((float) latitude, (float) longitude);
-    }
-
-    /**
-     * Logs page view counts.
-     */
-    public void logPageViews()
-    {
-        FlurryAgent.onPageView();
     }
 
     // region Remote Config

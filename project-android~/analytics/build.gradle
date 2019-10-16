@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "29.0.1"
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 16
@@ -23,17 +23,16 @@ android {
     }
 }
 
+dependencies {
+    implementation files('libs/flurryAnalytics_11.7.1.jar')
+    //implementation project(path: ':flurryAnalytics_12.0.0')
+}
+
 repositories
         {
             jcenter()
         }
 
-dependencies {
-    //compile fileTree(dir: 'libs', include: ['*.jar'])
-    // Avoid redundant Unity Player in final application APK
-    //compileOnly files('./libs/UnityPlayer.jar')
-    implementation files('./libs/flurryAnalytics_11.7.1.jar')
-}
 
 android.libraryVariants.all { variant ->
 
