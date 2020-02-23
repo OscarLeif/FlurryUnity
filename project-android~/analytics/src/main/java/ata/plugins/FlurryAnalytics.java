@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryConfig;
 import com.flurry.android.FlurryConfigListener;
+import com.flurry.android.FlurryPerformance;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -92,7 +93,7 @@ public class FlurryAnalytics extends Fragment
         try
         {
             Log.d(LOG_TAG,"Initialize FLurry Before Build");
-            new FlurryAgent.Builder()
+            /*new FlurryAgent.Builder()
                     .withLogEnabled(true)
                     .withCaptureUncaughtExceptions(true)
                     .withContinueSessionMillis(10000)
@@ -104,6 +105,13 @@ public class FlurryAnalytics extends Fragment
                         //logEvent("Installer: " + installerName == null ? "" : installerName);
                         Log.d(LOG_TAG, "Flurry Initialize");
                     })
+                    .build(unityActivity, FlurryKey);*/
+            new FlurryAgent.Builder()
+                    .withDataSaleOptOut(false) //CCPA - the default value is false
+                    .withCaptureUncaughtExceptions(true)
+                    .withIncludeBackgroundSessionsInMetrics(true)
+                    .withLogLevel(Log.VERBOSE)
+                    .withPerformanceMetrics(FlurryPerformance.ALL)
                     .build(unityActivity, FlurryKey);
         } catch (IllegalArgumentException e)
         {
