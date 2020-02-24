@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
+import com.flurry.android.FlurryAgentListener;
 import com.flurry.android.FlurryConfig;
 import com.flurry.android.FlurryConfigListener;
 import com.flurry.android.FlurryPerformance;
@@ -50,6 +51,8 @@ public class FlurryAnalytics extends Fragment
     private FlurryConfigListener mFlurryConfigListener;
     private boolean OnFetchSuccess = false;
 
+    private boolean Initialize = false;
+
     public static void start(Activity unityActivity, String flurryKey, FlurryCallback callback)
     {
         // Instantiate and add Unity Player Activity;
@@ -62,64 +65,50 @@ public class FlurryAnalytics extends Fragment
             instance.unityCallbackReference = callback;
 
             Log.d(LOG_TAG, "start: Method Called");
+
             unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
-            instance.onCreate(null);
+            //instance.onCreate(null);
         } else
         {
+            if(instance.Initialize==false)
+            {
+
+            }
             Toast.makeText(unityActivity, "Already initialize", Toast.LENGTH_LONG).show();
+            instance.onStart();
         }
     }
+
+    public void FlurryInitializ()
+    {
+
+    }
+
 
     //region Activity LifeCycle
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        Map<String, String> consentStrings = new HashMap<>();
-        //consentStrings.put("IAB", "yes");
-        //By default debug app key is the default if the app is side loaded.
-        //final Application application = UnityPlayer.currentActivity.getApplication();
-        if (unityActivity == null)
-        {
-            return;
-        }
-        //final String installerName = unityActivity.getPackageManager().getInstallerPackageName(unityActivity.getPackageName());
 
-        String FlurryKey = this.flurryKey;
-        if(FlurryKey.isEmpty())
-        {
-            FlurryKey = "NULL";
-        }
-        try
-        {
-            Log.d(LOG_TAG,"Initialize FLurry Before Build");
-            /*new FlurryAgent.Builder()
-                    .withLogEnabled(true)
-                    .withCaptureUncaughtExceptions(true)
-                    .withContinueSessionMillis(10000)
-                    .withLogLevel(VERBOSE)
-                    //.withConsent(new FlurryConsent(true, consentStrings)) //TODO check what is this for
-                    .withListener(() -> {
-                        unityActivity.runOnUiThread(() -> unityCallbackReference.onInitialize(true));
-                        Log.d(LOG_TAG, "onSessionStarted: Flurry is working");
-                        //logEvent("Installer: " + installerName == null ? "" : installerName);
-                        Log.d(LOG_TAG, "Flurry Initialize");
-                    })
-                    .build(unityActivity, FlurryKey);*/
-            new FlurryAgent.Builder()
-                    .withDataSaleOptOut(false) //CCPA - the default value is false
-                    .withCaptureUncaughtExceptions(true)
-                    .withIncludeBackgroundSessionsInMetrics(true)
-                    .withLogLevel(Log.VERBOSE)
-                    .withPerformanceMetrics(FlurryPerformance.ALL)
-                    .build(unityActivity, FlurryKey);
-        } catch (IllegalArgumentException e)
-        {
-            Log.e(LOG_TAG, "The API KEY Cannot be empty");
-        } catch (NullPointerException e)
-        {
-            Log.e(LOG_TAG, e.getMessage());
-        }
+        new FlurryAgent.Builder()
+                .withDataSaleOptOut(false) //CCPA - the default value is false
+                .withCaptureUncaughtExceptions(true)
+                .withIncludeBackgroundSessionsInMetrics(true)
+                .withLogLevel(Log.VERBOSE)
+                .withPerformanceMetrics(FlurryPerformance.ALL)
+                .withLogEnabled(true)
+                .withListener(new FlurryAgentListener() {
+                    @Override
+                    public void onSessionStarted()
+                    {
+                        // Session handling code
+                        Log.v(LOG_TAG,"Oscar The Plugin is working");
+                        instance.unityCallbackReference.onInitialize(true);
+                    }
+                })
+                .withSessionForceStart(true)// Issue solved, If cannot start on Application this should be used
+                .build(unityActivity.getBaseContext(), instance.flurryKey);
 
         //get version name
         try
@@ -135,10 +124,6 @@ public class FlurryAnalytics extends Fragment
         {
             e.printStackTrace();
         }
-        FlurryAgent.onStartSession(unityActivity);
-
-        Log.d(LOG_TAG, "onCreate: Method Called");
-        Log.d(LOG_TAG, "onCreate: KEY :" + flurryKey);
 
         // flurry config
         mFlurryConfig = FlurryConfig.getInstance();
@@ -192,7 +177,12 @@ public class FlurryAnalytics extends Fragment
         ;
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
-        setRetainInstance(true); // Retain between configuration changes (like device rotation)
+        //setRetainInstance(true); // Retain between configuration changes (like device rotation) // never used
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     @Override

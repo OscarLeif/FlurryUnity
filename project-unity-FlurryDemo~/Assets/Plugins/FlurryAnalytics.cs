@@ -17,12 +17,6 @@ namespace FlurrySDK
 
         public string flurryKey;
 
-        //public string flurryKeyAmazon;
-
-        //public string flurryKeyGoogle;
-
-        //public string flurryKeyGalaxy;
-
         [Tooltip("This should be set True when called from Android Side")]
         public bool Initialize = false;
         #endregion
@@ -32,7 +26,9 @@ namespace FlurrySDK
         /// </summary>
         public void Init(string flurryKey)
         {
-            if(this.Initialize)
+            if (PluginEnable == false)
+                return;
+            if (this.Initialize)
             {
                 Debug.Log("Already Initialize");
             }
@@ -40,16 +36,19 @@ namespace FlurrySDK
             this.flurryKey = flurryKey;
             //this.flurryKeyGoogle = googleApp;
             //this.flurryKeyAmazon = amazonApp;
-            if (PluginEnable == false)
-                return;
+
 #if UNITY_ANDROID
             if (Application.platform == RuntimePlatform.Android)
             {
-                AndroidJavaClass up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-                AndroidJavaObject ca = up.GetStatic<AndroidJavaObject>("currentActivity");
+                //AndroidJavaClass up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                //AndroidJavaObject ca = up.GetStatic<AndroidJavaObject>("currentActivity");
+
+                AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+                AndroidJavaObject context = activity.Call<AndroidJavaObject>("getApplicationContext");
 
                 _javaClass = new AndroidJavaClass("ata.plugins.FlurryAnalytics");
-                _javaClass.CallStatic("start", ca, flurryKey, new AndroidPluginCallback(this));
+                _javaClass.CallStatic("start", activity, flurryKey, new AndroidPluginCallback(this));
             }
 #endif
         }
@@ -178,7 +177,6 @@ namespace FlurrySDK
 
         #endregion
 
-
         #region Android Extras
 
         /// <summary>
@@ -213,16 +211,18 @@ namespace FlurrySDK
         /// </summary>
         public class AndroidPluginCallback : AndroidJavaProxy
         {
-            private FlurryAnalytics reference = null;
+            //private FlurryAnalytics reference = null;
 
             public AndroidPluginCallback(FlurryAnalytics reference) : base("ata.plugins.FlurryCallback")
             {
-                this.reference = reference;
+                //this.reference = reference;
             }
 
             public void onInitialize(bool isInit)
             {
-                reference.Initialize = isInit;
+                Debug.Log("Initiaze is: " + isInit);
+                FlurryAnalytics.Instance.Initialize = true;
+                //reference.Initialize = isInit;
                 //reference.Enqueue(() => reference.AndroidShowToast("Plugin Initialize " + isInit));
             }
         }

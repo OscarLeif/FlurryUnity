@@ -37,7 +37,7 @@ namespace FlurryDemo
 
             //GUI.Toggle(new Rect(Screen.width * 0.05f, Screen.height* 0.05f, 128,64), FlurryAnalytics.Instance.IsInitialize, "Flurry Initialize", toggleSize);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.90f, Screen.height * 0.08f), "Flurry SDK Initialiaze: " + (FlurryAnalytics.Instance.Initialize ? "true" : "false"), customButtom);
+            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.90f, Screen.height * 0.08f), "Flurry SDK Initialiaze: " + (FlurryAnalytics.Instance.Initialize.ToString()), customButtom);
 
             if (GUI.Button(new Rect(Screen.width * 0.05f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.10f), "Initialize Flurry SDK", customButtom))
             {
@@ -104,9 +104,9 @@ namespace FlurryDemo
                 this.remoteLong = FlurryAnalytics.Instance.getRemoteLong("long", -1111111111);
             }
             else
+            {
                 Debug.Log("Initialize Flurry first");
-
-            
+            }
         }
     }
 }
