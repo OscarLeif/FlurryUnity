@@ -26,23 +26,18 @@ namespace FlurrySDK
         /// </summary>
         public void Init(string flurryKey)
         {
+            this.PluginEnable = true;
             if (PluginEnable == false)
                 return;
             if (this.Initialize)
             {
                 Debug.Log("Already Initialize");
-            }
-            this.PluginEnable = true;
+            }            
             this.flurryKey = flurryKey;
-            //this.flurryKeyGoogle = googleApp;
-            //this.flurryKeyAmazon = amazonApp;
 
 #if UNITY_ANDROID
             if (Application.platform == RuntimePlatform.Android)
             {
-                //AndroidJavaClass up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-                //AndroidJavaObject ca = up.GetStatic<AndroidJavaObject>("currentActivity");
-
                 AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
                 AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
                 AndroidJavaObject context = activity.Call<AndroidJavaObject>("getApplicationContext");
