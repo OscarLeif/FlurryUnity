@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 16
@@ -47,8 +47,8 @@ android.libraryVariants.all { variant ->
     String sourceAARName = "${project.name}-${variant.name}.aar";
 
     // Target.
-    //String targetAssetFolder = "Assets/Plugins/Flurry";
-    String targetAssetFolder = "Plugins";
+    String targetAssetFolder= "project-unity-FlurryDemo~\\Assets\\Plugins";
+    //String targetAssetFolder = "Plugins";
     String targetAARFolder = "${rootDir.getPath()}/../${targetAssetFolder}"; // Navigate into 'Assets'
     String targetAARName = "FlurryAnalytics.aar"; // The form you ship your plugin
 
@@ -58,9 +58,10 @@ android.libraryVariants.all { variant ->
         logger.lifecycle("${variant.name.capitalize()} Target AAR Folder: ${targetAARFolder}")
         logger.lifecycle("${variant.name.capitalize()} Target AAR name: ${targetAARName}")
 
-        from(sourceAARFolder)
         into(targetAARFolder)
+        from(sourceAARFolder)
         include(sourceAARName)
         rename(sourceAARName, targetAARName)
+
     }.group = deployTaskGroup;
 }
