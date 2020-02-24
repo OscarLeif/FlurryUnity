@@ -17,7 +17,7 @@ This is a free plugin only Android implementation for Unity 3D.
 - Create a new Unity Project
 - Open the manifest.json file in the Packages folder inside of the Project
   ```sh
-  Add  "com.ata.flurry": "https://github.com/OscarLeif/FlurryUnity.git",
+  Add  "com.atagames.flurry": "https://github.com/OscarLeif/FlurryUnity.git",
   ```
 - Press Tools->Flurry->Update Framework[GIT] in Unity to get new update when needed
 ### From Package file (Unity 5+):
