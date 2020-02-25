@@ -24,8 +24,9 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':flurryAnalytics_12.2.0')
     //implementation files('libs/flurryAnalytics_11.7.1.jar')
-    implementation files('libs/flurryAnalytics_12.2.0.aar')
+    //implementation files('libs/flurryAnalytics_12.2.0.aar')
 }
 
 repositories
@@ -63,5 +64,5 @@ android.libraryVariants.all { variant ->
         include(sourceAARName)
         rename(sourceAARName, targetAARName)
 
-    }.group = deployTaskGroup;
+    }.group = deployTaskGroup
 }

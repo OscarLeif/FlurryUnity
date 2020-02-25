@@ -620,7 +620,8 @@ PlayerSettings:
     4: DebugLog
     7: DebugLog
   platformArchitecture: {}
-  scriptingBackend: {}
+  scriptingBackend:
+    Android: 1
   il2cppCompilerConfiguration: {}
   managedStrippingLevel: {}
   incrementalIl2cppBuild: {}
