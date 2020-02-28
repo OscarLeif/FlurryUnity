@@ -66,31 +66,15 @@ public class FlurryAnalytics extends Fragment
 
             Log.d(LOG_TAG, "start: Method Called");
 
-            unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
-            //instance.onCreate(null);
-        } else
-        {
-            if(instance.Initialize==false)
-            {
 
-            }
-            Toast.makeText(unityActivity, "Already initialize", Toast.LENGTH_LONG).show();
-            instance.onStart();
+            unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+            instance.InitializeFlurryOnce();
+            //instance.onCreate(null);
         }
     }
 
-    public void FlurryInitializ()
+    public void InitializeFlurryOnce()
     {
-
-    }
-
-
-    //region Activity LifeCycle
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-
         new FlurryAgent.Builder()
                 .withDataSaleOptOut(false) //CCPA - the default value is false
                 .withCaptureUncaughtExceptions(true)
@@ -100,11 +84,11 @@ public class FlurryAnalytics extends Fragment
                 .withLogEnabled(true)
                 .withListener(new FlurryAgentListener() {
                     @Override
-                    public void onSessionStarted()
-                    {
+                    public void onSessionStarted() {
                         // Session handling code
-                        Log.v(LOG_TAG,"Oscar The Plugin is working");
+                        Log.v(LOG_TAG, "Oscar The Plugin is working");
                         instance.unityCallbackReference.onInitialize(true);
+                        instance.Initialize = true;
                     }
                 })
                 .withSessionForceStart(true)// Issue solved, If cannot start on Application this should be used
@@ -177,7 +161,14 @@ public class FlurryAnalytics extends Fragment
         ;
         mFlurryConfig.registerListener(mFlurryConfigListener);
         mFlurryConfig.fetchConfig();
-        //setRetainInstance(true); // Retain between configuration changes (like device rotation) // never used
+    }
+
+
+    //region Activity LifeCycle
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
