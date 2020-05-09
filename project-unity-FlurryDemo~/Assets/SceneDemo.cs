@@ -70,7 +70,7 @@ namespace FlurryDemo
             {
                 if (FlurryAnalytics.Instance)
                 {
-                    //FlurryAnalytics.Instance.FetchConfig();
+                    FlurryAnalytics.Instance.FetchConfig();
                 }
             }
 

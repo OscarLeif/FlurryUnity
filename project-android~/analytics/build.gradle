@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
         minSdkVersion 16
@@ -24,10 +24,9 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':flurryAnalytics_12.2.0')
-    //implementation files('libs/flurryAnalytics_11.7.1.jar')
-    //implementation files('libs/flurryAnalytics_12.2.0.aar')
+    implementation project(path: ':flurryAnalytics_12.3.0')
 }
+
 
 repositories
         {
