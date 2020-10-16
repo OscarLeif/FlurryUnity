@@ -7,7 +7,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryAgentListener;
@@ -15,14 +14,11 @@ import com.flurry.android.FlurryConfig;
 import com.flurry.android.FlurryConfigListener;
 import com.flurry.android.FlurryPerformance;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import static android.util.Log.VERBOSE;
 
 /**
  * Created by OscarLeif on 5/6/2017.
- * Update 10 April 2019
+ * Update 16 October 2020
  */
 
 public class FlurryAnalytics extends Fragment
@@ -65,7 +61,6 @@ public class FlurryAnalytics extends Fragment
             instance.unityCallbackReference = callback;
 
             Log.d(LOG_TAG, "start: Method Called");
-
 
             unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
             instance.InitializeFlurryOnce();
@@ -350,13 +345,6 @@ public class FlurryAnalytics extends Fragment
     }
 
     // endregion
-
-    public static class AndroidAppStoresID
-    {
-        public static final String GOOGLE_PLAY = "com.android.vending";
-        public static final String AMAZON_APP_STORE = "com.amazon.venecia";
-        public static final String GALAXY_APP_STORE = "com.sec.android.app.samsungapps";
-    }
 }
 
 interface FlurryCallback

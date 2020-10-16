@@ -24,8 +24,27 @@ namespace FlurryDemo
 
         private float remoteFloat = -12345;
 
+        /// <summary>
+        /// This is for Non Touch Devices
+        /// </summary>
+        /// 
+        [Tooltip("Auto start set to True for non Touch Devices. Like Android || Fire TV ")]
+        public bool autoStart = false;
 
         #endregion
+
+        private IEnumerator Start()
+        {
+            yield return new WaitForSeconds(5f);
+            if (autoStart)
+            {
+#if UNITY_ANDROID
+                FlurryAnalytics.Instance.Init(this.FlurryKey);
+                yield return new WaitForSeconds(2f);
+                UpdateRemoteData();
+#endif
+            }
+        }
 
         // Testing
         void OnGUI()
