@@ -39,8 +39,7 @@ namespace FlurryDemo
             if (autoStart)
             {
 #if UNITY_ANDROID
-                FlurryAnalytics.Instance.Init(this.FlurryKey);
-                yield return new WaitForSeconds(2f);
+                FlurryAnalytics.Instance.Init(this.FlurryKey);                
                 UpdateRemoteData();
 #endif
             }
@@ -50,15 +49,18 @@ namespace FlurryDemo
         void OnGUI()
         {
             // Initialize
-            GUIStyle customButtom = new GUIStyle("button");
+            GUIStyle customButtom = new GUIStyle("Button");
 
-            customButtom.fontSize = (Screen.width / Screen.height) > 1 ? (Screen.width / Screen.height) * 15 : (Screen.height / Screen.width) * 15;
+            int width = Screen.width;
+            int height = Screen.height;
+
+            customButtom.fontSize = width / height > 1 ? width / height * 15 : height / width * 15;
 
             //GUI.Toggle(new Rect(Screen.width * 0.05f, Screen.height* 0.05f, 128,64), FlurryAnalytics.Instance.IsInitialize, "Flurry Initialize", toggleSize);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.90f, Screen.height * 0.08f), "Flurry SDK Initialiaze: " + (FlurryAnalytics.Instance.Initialize.ToString()), customButtom);
+            GUI.Label(new Rect(width * 0.05f, height * 0.05f, width * 0.90f, height * 0.08f), "Flurry SDK Initialiaze: " + (FlurryAnalytics.Instance.Initialize.ToString()), customButtom);
 
-            if (GUI.Button(new Rect(Screen.width * 0.05f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.10f), "Initialize Flurry SDK", customButtom))
+            if (GUI.Button(new Rect(width * 0.05f, height * 0.15f, width * 0.4f, height * 0.10f), "Initialize Flurry SDK", customButtom))
             {
                 if (FlurryAnalytics.Instance)
                 {
@@ -69,7 +71,7 @@ namespace FlurryDemo
             }
 
             // Set Log Event
-            if (GUI.Button(new Rect(Screen.width * 0.55f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.10f), "Set Log event: " + customEvent, customButtom))
+            if (GUI.Button(new Rect(width * 0.55f, height * 0.15f, width * 0.4f, height * 0.10f), "Set Log event: " + customEvent, customButtom))
             {
                 if (FlurryAnalytics.Instance)
                 {
@@ -77,7 +79,7 @@ namespace FlurryDemo
                 }
             }
 
-            if (GUI.Button(new Rect(Screen.width * 0.05f, Screen.height * 0.3f, Screen.width * 0.4f, Screen.height * 0.10f), "Get Remote data", customButtom))
+            if (GUI.Button(new Rect(width * 0.05f, height * 0.3f, width * 0.4f, height * 0.10f), "Get Remote data", customButtom))
             {
                 if (FlurryAnalytics.Instance)
                 {
@@ -85,7 +87,7 @@ namespace FlurryDemo
                 }
             }
 
-            if (GUI.Button(new Rect(Screen.width * 0.55f, Screen.height * 0.3f, Screen.width * 0.4f, Screen.height * 0.10f), "Fetch Remote Data", customButtom))
+            if (GUI.Button(new Rect(width * 0.55f, height * 0.3f, width * 0.4f, height * 0.10f), "Fetch Remote Data", customButtom))
             {
                 if (FlurryAnalytics.Instance)
                 {
@@ -93,19 +95,19 @@ namespace FlurryDemo
                 }
             }
 
-            this.customEvent = GUI.TextField(new Rect(Screen.width * 0.55f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), this.customEvent, customButtom);
+            this.customEvent = GUI.TextField(new Rect(width * 0.55f, height * 0.50f, width * 0.4f, height * 0.08f), this.customEvent, customButtom);
 
-            GUI.Label(new Rect(Screen.width * 0.55f, Screen.height * 0.60f, Screen.width * 0.4f, Screen.height * 0.08f), FlurryAnalytics.Instance.Initialize ? "Initialize: True" : "Initialize: False", customButtom);
+            GUI.Label(new Rect(width * 0.55f, height * 0.60f, width * 0.4f, height * 0.08f), FlurryAnalytics.Instance.Initialize ? "Initialize: True" : "Initialize: False", customButtom);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.50f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote String: " + this.remoteString, customButtom);
+            GUI.Label(new Rect(width * 0.05f, height * 0.50f, width * 0.4f, height * 0.08f), "Remote String: " + this.remoteString, customButtom);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.60f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote Bool: " + this.remoteBool, customButtom);
+            GUI.Label(new Rect(width * 0.05f, height * 0.60f, width * 0.4f, height * 0.08f), "Remote Bool: " + this.remoteBool, customButtom);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.70f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote Int: " + this.remoteInt, customButtom);
+            GUI.Label(new Rect(width * 0.05f, height * 0.70f, width * 0.4f, height * 0.08f), "Remote Int: " + this.remoteInt, customButtom);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.80f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote Float: " + this.remoteFloat, customButtom);
+            GUI.Label(new Rect(width * 0.05f, height * 0.80f, width * 0.4f, height * 0.08f), "Remote Float: " + this.remoteFloat, customButtom);
 
-            GUI.Label(new Rect(Screen.width * 0.05f, Screen.height * 0.90f, Screen.width * 0.4f, Screen.height * 0.08f), "Remote Long: " + this.remoteLong, customButtom);
+            GUI.Label(new Rect(width * 0.05f, height * 0.90f, width * 0.4f, height * 0.08f), "Remote Long: " + this.remoteLong, customButtom);
         }
 
         /// <summary>
