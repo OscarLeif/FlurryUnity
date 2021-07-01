@@ -1,0 +1,4 @@
+-keep class ata.plugins.** { *; }
+-dontwarn ata.plugins
+-keep class com.flurry.** { *; }
+-dontwarn com.flurry

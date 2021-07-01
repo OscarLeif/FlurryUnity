@@ -338,7 +338,7 @@ public class FlurryAnalytics extends Fragment
     // region Unity Utilities
 
     //Since we don't use UnityActivity this cannot be done
-    private void SendUnityMessage(String methodName, String parameter)
+    public void SendUnityMessage(String methodName, String parameter)
     {
         Log.i(LOG_TAG, LOG_TAG + "SendUnityMessage(`" + methodName + "`, `" + parameter + "`)");
         //UnityPlayer.UnitySendMessage(gameObjectName, methodName, parameter);

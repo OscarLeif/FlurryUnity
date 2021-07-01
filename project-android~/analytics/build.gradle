@@ -2,7 +2,8 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '30.0.3'
+
 
     defaultConfig {
         targetSdkVersion 30
@@ -11,11 +12,17 @@ android {
     }
     buildTypes
             {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+        release
+                {
+                    minifyEnabled true
+                    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                }
+        debug
+                {
+                    minifyEnabled false
+                    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                }
+            }
     compileOptions {
         targetCompatibility = 1.8
         sourceCompatibility = 1.8
@@ -23,22 +30,27 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':flurryAnalytics_12.7.0')
+    implementation 'com.flurry.android:analytics:12.13.0'
+    //implementation fileTree(dir: 'libs', include: ['*.jar'])
     // Recommended to add Google Play Services
-    implementation 'com.google.android.gms:play-services-base:17.4.0'
+    //implementation 'com.google.android.gms:play-services-base:17.4.0'
 }
 
 
 repositories
         {
             jcenter()
+            flatDir
+                    {
+                        dirs 'libs'
+                    }
         }
 
 
 android.libraryVariants.all { variant ->
 
     // Task names.
-    String variantName = "${variant.name.capitalize()}"; // Like 'Debug'
+    String variantName = "${variant.name.capitalize()}"; // Like 'Release' || 'Debug'
     String deployTaskGroup = "plugin";
     String deployTaskName = "deploy${variantName}Plugin"; // Like 'deployDebugPlugin'
     String dependencyTaskName = "assemble${variantName}"; // Like 'assembleDebug'
@@ -48,10 +60,10 @@ android.libraryVariants.all { variant ->
     String sourceAARName = "${project.name}-${variant.name}.aar";
 
     // Target.
-    String targetAssetFolder= "project-unity-FlurryDemo~\\Assets\\Plugins";
+    String targetAssetFolder= "Plugins\\Android";
     //String targetAssetFolder = "Plugins";
     String targetAARFolder = "${rootDir.getPath()}/../${targetAssetFolder}"; // Navigate into 'Assets'
-    String targetAARName = "FlurryAnalytics.aar"; // The form you ship your plugin
+    String targetAARName = "Ata-FlurryAnalytics-${variant.name}.aar"; // The form you ship your plugin
 
     // Create task.
     task(deployTaskName, dependsOn: dependencyTaskName, type: Copy) {

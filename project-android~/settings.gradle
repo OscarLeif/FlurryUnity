@@ -1,2 +1,1 @@
-include ':flurryAnalytics_12.7.0'
 include ':analytics'
