@@ -20,7 +20,8 @@ This is a free plugin only Android implementation for Unity 3D.
   "com.atagames.flurry": "https://github.com/OscarLeif/FlurryUnity.git",
   ```
 - Unity Package Manager. Just Click Add Git URL "https://github.com/OscarLeif/FlurryUnity.git"
--To Update you will need to remove and add again (I will check if I can make this more simpler). 
+- To Update you will need to remove and add again (I will check if I can make this more simpler). 
+
 
 ### From Package file (Unity 5+):
 - Download and install this package in your Unity Project: Here (TODO Add Link to package)
