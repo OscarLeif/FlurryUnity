@@ -16,13 +16,24 @@ This is a free plugin only Android implementation for Unity 3D.
 ### From package manager (Unity 2018+)
 - Create a new Unity Project
 - Open the manifest.json file in the Packages folder inside of the Project
-  ```sh
-  Add  "com.atagames.flurry": "https://github.com/OscarLeif/FlurryUnity.git",
   ```
-- Press Tools->Flurry->Update Framework[GIT] in Unity to get new update when needed
+  "com.atagames.flurry": "https://github.com/OscarLeif/FlurryUnity.git",
+  ```
+- Unity Package Manager. Just Click Add Git URL "https://github.com/OscarLeif/FlurryUnity.git"
+-To Update you will need to remove and add again (I will check if I can make this more simpler). 
+
 ### From Package file (Unity 5+):
 - Download and install this package in your Unity Project: Here (TODO Add Link to package)
 
+# Minify
+
+In order to use this plugin with minify you need to copy the next instructions to your own proguard-user.txt
+```
+-keep class ata.plugins.** { *; }
+-dontwarn ata.plugins
+-keep class com.flurry.** { *; }
+-dontwarn com.flurry
+```
 
 # How to Use 
 
