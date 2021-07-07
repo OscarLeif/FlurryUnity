@@ -19,7 +19,7 @@ This is a free plugin only Android implementation for Unity 3D.
   ```
   "com.atagames.flurry": "https://github.com/OscarLeif/FlurryUnity.git",
   ```
-- Unity Package Manager. Just Click Add Git URL "https://github.com/OscarLeif/FlurryUnity.git"
+- Unity Package Manager. Just Click Add Git URL use the next link "https://github.com/OscarLeif/FlurryUnity.git"
 - To Update you will need to remove and add again (I will check if I can make this more simpler). 
 
 
@@ -46,6 +46,10 @@ You should first create a Flurry developer account and setup your app in the web
   - Call this only once.
     ```sh
     FlurryAnalytics.Instance.Init(string flurryKeyDebug)
+    //Note If for some reason you use an empy value the plugin will crash 
+    //Probably making issues, Maybe for Development you don't want to track 
+    //Your own sessions is better to Create a Test Key (porbably you should destroy that after release)      
+    // Or Simply use Non Empty string to validate Minify Integration.
     ```
 - Set Logs to Flurry
   - ```Call FlurryAnalytics.Instance.LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false) ```
