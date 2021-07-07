@@ -45,15 +45,18 @@ You should first create a Flurry developer account and setup your app in the web
 - You must first Initialize the Plugin.
   - Call this only once.
     ```sh
-    FlurryAnalytics.Instance.Init(string flurryKeyDebug)
-    //Note If for some reason you use an empy value the plugin will crash 
-    //Probably making issues, Maybe for Development you don't want to track 
-    //Your own sessions is better to Create a Test Key (porbably you should destroy that after release)      
-    // Or Simply use Non Empty string to validate Minify Integration.
+    FlurryAnalytics.Instance.Init(string flurryKeyDebug);
+    //Never use Empty String ("") or string.Empty. Will make flurry fail.
     ```
 - Set Logs to Flurry
   - ```Call FlurryAnalytics.Instance.LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false) ```
   - ```Call FlurryAnalytics.Instance.EndTimeEvent(string eventName)```
+
+## Important
+
+Note If for some reason you use an empty value the plugin will crash.
+When Testing you can create a Test Key, and after complete it's a good idea to remove that Key from the Flurry Analytics console.
+When not using a Flurry Key just write a random value, Initialize the plugin with any value it will just make sure Minify is working fine.
  
 ## Remote Configuration
 - You must setup you own flurry remote configuration. Each app key have his own configuration
