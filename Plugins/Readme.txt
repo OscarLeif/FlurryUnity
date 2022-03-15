@@ -5,11 +5,11 @@ What are these files?
 FlurryAnalytics.java is a Helper File. Instead of creating an Android Studio Project then export an "aar" library plugin
 we can just simply write the source code and Unity will make the rest. Is more easy to maintain and more faster to update and customize.
 
-flurryAnalytics_12.3.0.aar
+flurryAnalytics_13.1.0.aar
 Any file with extension "aar" is an Android library in this case this one is downloaded from the Flurry website.
 The idea is just to change this file to update Flurry very fast.
 
-Singleton is just another Singleton file in this case is the Singleton use in this Plugin to work in all platform.
+Singleton file is a "Singleton" used exclusive for the Flurry Plugin. It have hiw own namescape to avoid conflict with Other Singleton Files.
 Android will make Calls to Android, while in other platforms it just do nothing.
 
 How To Use ?

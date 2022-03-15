@@ -9,6 +9,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.atagames.flurry",
+            "expression": "",
+            "define": "USE_FLURRY"
+        }
+    ],
     "noEngineReferences": false
 }
