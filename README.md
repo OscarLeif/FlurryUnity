@@ -7,7 +7,7 @@ This is a free plugin only Android implementation for Unity 3D.
 - Lightweight 
 - Support most of all Unity android project
 - No override of the Unity Main activity
-- Added Preprocessor "USE_FLURRY" When you Add this package
+- Warning Unity have this feature incompleted.  :/ Added Preprocessor "USE_FLURRY" When you Add this package
 
 ----
 # Requierements
