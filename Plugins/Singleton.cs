@@ -63,6 +63,8 @@ namespace FlurrySDK
         }
 
         protected virtual void OnAwake() { }
+
+        protected virtual void OnDestroy() { _instance = null; }
         #endregion
     }
 
