@@ -24,12 +24,12 @@ namespace FlurrySDK
         {
             get
             {
-                if (Quitting)
-                {
-                    Debug.LogWarning($"[{nameof(Singleton)}<{typeof(T)}>] Instance will not be returned because the application is quitting.");
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    return null;
-                }
+                //if (Quitting)
+                //{
+                //    Debug.LogWarning($"[{nameof(Singleton)}<{typeof(T)}>] Instance will not be returned because the application is quitting.");
+                //    // ReSharper disable once AssignNullToNotNullAttribute
+                //    return null;
+                //}
                 lock (Lock)
                 {
                     if (_instance != null)
@@ -70,16 +70,21 @@ namespace FlurrySDK
 
     public abstract class Singleton : MonoBehaviour
     {
-        #region  Properties
-        public static bool Quitting { get; private set; }
-        #endregion
+        //#region  Properties
+        //public static bool Quitting { get; private set; }
+        //#endregion
 
-        #region  Methods
-        private void OnApplicationQuit()
-        {
-            Quitting = true;
-        }
-        #endregion
+        //#region  Methods
+        //private void OnApplicationQuit()
+        //{
+        //    Quitting = true;
+        //}
+
+        //private void OnDestroy()
+        //{
+        //    Quitting = false;
+        //}
+        //#endregion
     }
     //Free candy!
 }
