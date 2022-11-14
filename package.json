@@ -1,6 +1,6 @@
 {
   "name": "com.atagames.flurry",
   "version": "1.0.0",
-  "description": "A UnOfficial Flurry Plugin for Android Unity",
-  "displayName": "Flurry Android Plugin"
+  "description": "A UnOfficial Flurry Plugin for Android Unity SDK 14.0.0",
+  "displayName": "Flurry Android Plugin SKD 14.0.0"
 }
