@@ -6,8 +6,38 @@ using UnityEngine;
 
 namespace FlurrySDK
 {
-    public class FlurryAnalytics : Singleton<FlurryAnalytics>
+    /// <summary>
+    /// Flurry Analytics Singleton.
+    /// Better Initialize this by using Only Script.
+    /// So Don't create A Gameobject with this component.
+    /// </summary>
+    public class FlurryAnalytics : MonoBehaviour
     {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        public static void AutoInitialize()
+        {
+            m_Instance = null;
+        }
+
+        /// <summary>
+        /// Global Singleton. We must Auto Initialize after call
+        /// </summary>
+        public static FlurryAnalytics Instance
+        {
+            get
+            {
+                if (m_Instance == null)
+                {
+                    GameObject go = new GameObject(nameof(FlurryAnalytics));
+                    m_Instance = go.AddComponent<FlurryAnalytics>();
+                    DontDestroyOnLoad(go);
+                }
+                return m_Instance;
+            }
+        }
+
+        private static FlurryAnalytics m_Instance;
+
         #region Flurry Fields
         public bool PluginEnable = false;
 
@@ -32,7 +62,7 @@ namespace FlurrySDK
             if (this.Initialize)
             {
                 Debug.Log("Already Initialize");
-            }            
+            }
             this.flurryKey = flurryKey;
 
 #if UNITY_ANDROID
