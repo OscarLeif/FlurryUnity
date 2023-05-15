@@ -13,11 +13,9 @@ namespace FlurrySDK
     /// </summary>
     public class FlurryAnalytics : MonoBehaviour
     {
+        //Disable Domain Reload Support.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        public static void AutoInitialize()
-        {
-            m_Instance = null;
-        }
+        public static void AutoInitialize() { m_Instance = null; }
 
         /// <summary>
         /// Global Singleton. We must Auto Initialize after call
