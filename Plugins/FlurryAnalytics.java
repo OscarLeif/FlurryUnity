@@ -54,17 +54,24 @@ public class FlurryAnalytics extends Fragment
         // Instantiate and add Unity Player Activity;
         if (instance == null)
         {
-            instance = new FlurryAnalytics();
-            instance.unityActivity = unityActivity;
-            instance.gameObjectName = "Flurry";
-            instance.flurryKey = flurryKey;
-            instance.unityCallbackReference = callback;
+            boolean isNullOrEmpty = (flurryKey == null || flurryKey.isEmpty()); // false
+            if(!isNullOrEmpty)
+            {
+                instance = new FlurryAnalytics();
+                instance.unityActivity = unityActivity;
+                instance.gameObjectName = "Flurry";
+                instance.flurryKey = flurryKey;
+                instance.unityCallbackReference = callback;
 
-            Log.d(LOG_TAG, "start: Method Called");
+                Log.d(LOG_TAG, "start: Method Called");
 
-            unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
-            instance.InitializeFlurryOnce();
-            //instance.onCreate(null);
+                unityActivity.getFragmentManager().beginTransaction().add(instance, FlurryAnalytics.LOG_TAG).commit();
+                instance.InitializeFlurryOnce();            
+            }
+            else
+            {
+                Log.e(LOG_TAG, "Error: Flurry Analytics Key is Empty or Null");
+            }
         }
     }
 
@@ -212,9 +219,9 @@ public class FlurryAnalytics extends Fragment
      * @param eventParams event parameters (can be null)
      * @param timed       <code>true</code> if the event should be timed, false otherwise
      */
-    public void logEvent(String eventName, Map<String, String> eventParams, boolean timed)
+    public void logEventWithParams(String eventName, Map<String, String> eventParams)
     {
-        FlurryAgent.logEvent(eventName, eventParams, timed);
+        FlurryAgent.logEvent(eventName, eventParams);
     }
 
     public void logEvent(String eventName)
@@ -222,9 +229,14 @@ public class FlurryAnalytics extends Fragment
         FlurryAgent.logEvent(eventName);
     }
 
-    public void logEvent(String eventName, boolean timed)
+    public void logTimedEventWithParams(String eventName, Map<String, String> eventParams)
     {
-        FlurryAgent.logEvent(eventName, timed);
+        FlurryAgent.logEvent(eventName,eventParams, true);
+    }
+
+    public void logTimedEvent(String eventName)
+    {
+        FlurryAgent.logEvent(eventName, true);
     }
 
     /**

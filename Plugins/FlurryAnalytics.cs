@@ -77,25 +77,54 @@ namespace FlurrySDK
         }
 
         #region Analytics Implementation
+
         public void LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false)
         {
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                return;
+            }
+
+            if (dictionary != null)
+            {
+                if (dictionary.Count > 10)
+                {
+                    Debug.LogWarning("Flurry: Max 10 Parameters are allowed");
+                }
+            }
+
             if (PluginEnable && Initialize)
             {
-#if UNITY_ANDROID
-                if (Application.platform == RuntimePlatform.Android)
-                    if (dictionary != null)
+                using AndroidJavaObject hashMap = new AndroidJavaObject("java.util.HashMap");
+                if (dictionary != null)
+                {
+                    IntPtr methodID = AndroidJNIHelper.GetMethodID(hashMap.GetRawClass(), "put",
+                                               "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+                    object[] array = new object[2];
+                    foreach (KeyValuePair<string, string> kvp in dictionary)
                     {
-                        var hashMap = DictionaryToJavaHashMap(dictionary);
-                        _javaObject.Call("logEvent", eventName, hashMap, record);
+                        using AndroidJavaObject keyString = new AndroidJavaObject("java.lang.String", kvp.Key);
+                        using AndroidJavaObject valueString = new AndroidJavaObject("java.lang.String", kvp.Value);
+                        array[0] = keyString;
+                        array[1] = valueString;
+                        AndroidJNI.CallObjectMethod(hashMap.GetRawObject(), methodID, AndroidJNIHelper.CreateJNIArgArray(array));
                     }
+                }
+
+                if (record)
+                {
+                    if (dictionary == null)
+                        _javaObject.Call("logTimedEvent", eventName);
                     else
-                    {
-                        if (!record)
-                            _javaObject.Call("logEvent", eventName);
-                        else
-                            _javaObject.Call("logEvent", eventName, record);
-                    }
-#endif
+                        _javaObject.Call("logTimedEventWithParams", eventName, hashMap);
+                }
+                else
+                {
+                    if (dictionary == null)
+                        _javaObject.Call("logEvent", eventName, record);
+                    else
+                        _javaObject.Call("logEventWithParams", eventName, hashMap);
+                }
             }
         }
 
@@ -198,33 +227,7 @@ namespace FlurrySDK
             return returnLong;
         }
 
-        #endregion
-
-        #region Android Extras
-
-        /// <summary>
-        /// Converts Dictionary<string, string> to java HashMap object
-        /// </summary>
-        private static AndroidJavaObject DictionaryToJavaHashMap(Dictionary<string, string> dictionary)
-        {
-            var javaObject = new AndroidJavaObject("java.util.HashMap");
-            var put = AndroidJNIHelper.GetMethodID(javaObject.GetRawClass(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-
-            foreach (KeyValuePair<string, string> entry in dictionary)
-            {
-                using (var key = new AndroidJavaObject("java.lang.String", entry.Key))
-                {
-                    using (var value = new AndroidJavaObject("java.lang.String", entry.Value))
-                    {
-                        AndroidJNI.CallObjectMethod(javaObject.GetRawObject(), put, AndroidJNIHelper.CreateJNIArgArray(new object[] { key, value }));
-                    }
-                }
-            }
-
-            return javaObject;
-        }
-
-        #endregion
+        #endregion       
 
         #region Android Callback
 
