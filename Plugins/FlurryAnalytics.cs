@@ -78,7 +78,7 @@ namespace FlurrySDK
 
         public void LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false)
         {
-            if (Application.platform == RuntimePlatform.Android)
+            if (Application.platform != RuntimePlatform.Android)
             {
                 return;
             }
