@@ -119,7 +119,7 @@ namespace FlurrySDK
                 else
                 {
                     if (dictionary == null)
-                        _javaObject.Call("logEvent", eventName, record);
+                        _javaObject.Call("logEvent", eventName);
                     else
                         _javaObject.Call("logEventWithParams", eventName, hashMap);
                 }
@@ -223,9 +223,9 @@ namespace FlurrySDK
             }
 #endif
             return returnLong;
-        }
+        }        
 
-        #endregion       
+        #endregion
 
         #region Android Callback
 
