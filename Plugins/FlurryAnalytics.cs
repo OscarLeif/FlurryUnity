@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -76,21 +77,25 @@ namespace FlurrySDK
 
         #region Analytics Implementation
 
-        public void LogEvent(string eventName, Dictionary<string, string> dictionary = null, bool record = false)
+        public void LogEvent(string eventName)
         {
-            if (Application.platform != RuntimePlatform.Android)
+            if (Application.platform != RuntimePlatform.Android) return;
+            if (PluginEnable && Initialize)
+            {
+                _javaObject.Call("logEvent", eventName);
+            }
+        }
+
+        public void LogEventWithParams(string eventName, Dictionary<string, string> dictionary)
+        {
+            if (Application.platform != RuntimePlatform.Android && dictionary != null)
             {
                 return;
             }
-
-            if (dictionary != null)
+            if (dictionary.Count > 10)
             {
-                if (dictionary.Count > 10)
-                {
-                    Debug.LogWarning("Flurry: Max 10 Parameters are allowed");
-                }
+                Debug.LogWarning("Warning Flurry: Max 10 Parameters are allowed");
             }
-
             if (PluginEnable && Initialize)
             {
                 using AndroidJavaObject hashMap = new AndroidJavaObject("java.util.HashMap");
@@ -108,21 +113,43 @@ namespace FlurrySDK
                         AndroidJNI.CallObjectMethod(hashMap.GetRawObject(), methodID, AndroidJNIHelper.CreateJNIArgArray(array));
                     }
                 }
+                _javaObject.Call("logEventWithParams", eventName, hashMap);
+                dictionary = null;                
+            }
+        }
 
-                if (record)
+        public void logTimedEvent(string eventName)
+        {
+            if (Application.platform != RuntimePlatform.Android) return;
+            if (PluginEnable && Initialize)
+            {
+                _javaObject.Call("logTimedEvent", eventName);
+            }
+        }
+
+        public void logTimedEventWithParams(string eventName, Dictionary<string, string> dictionary)
+        {
+            if (Application.platform != RuntimePlatform.Android) return;
+            if (PluginEnable && Initialize && dictionary != null)
+            {
+                using AndroidJavaObject hashMap = new AndroidJavaObject("java.util.HashMap");
+                if (dictionary.Count > 10)
                 {
-                    if (dictionary == null)
-                        _javaObject.Call("logTimedEvent", eventName);
-                    else
-                        _javaObject.Call("logTimedEventWithParams", eventName, hashMap);
+                    Debug.LogWarning("Warning Flurry: Max 10 Parameters are allowed");
                 }
-                else
+                IntPtr methodID = AndroidJNIHelper.GetMethodID(hashMap.GetRawClass(), "put",
+                                               "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+                object[] array = new object[2];
+                foreach (KeyValuePair<string, string> kvp in dictionary)
                 {
-                    if (dictionary == null)
-                        _javaObject.Call("logEvent", eventName);
-                    else
-                        _javaObject.Call("logEventWithParams", eventName, hashMap);
+                    using AndroidJavaObject keyString = new AndroidJavaObject("java.lang.String", kvp.Key);
+                    using AndroidJavaObject valueString = new AndroidJavaObject("java.lang.String", kvp.Value);
+                    array[0] = keyString;
+                    array[1] = valueString;
+                    AndroidJNI.CallObjectMethod(hashMap.GetRawObject(), methodID, AndroidJNIHelper.CreateJNIArgArray(array));
                 }
+                _javaObject.Call("logTimedEventWithParams", eventName, hashMap);
+                dictionary = null;
             }
         }
 
@@ -223,7 +250,7 @@ namespace FlurrySDK
             }
 #endif
             return returnLong;
-        }        
+        }
 
         #endregion
 
