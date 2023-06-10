@@ -118,7 +118,7 @@ namespace FlurrySDK
             }
         }
 
-        public void logTimedEvent(string eventName)
+        public void LogTimedEvent(string eventName)
         {
             if (Application.platform != RuntimePlatform.Android) return;
             if (PluginEnable && Initialize)
@@ -127,7 +127,7 @@ namespace FlurrySDK
             }
         }
 
-        public void logTimedEventWithParams(string eventName, Dictionary<string, string> dictionary)
+        public void LogTimedEventWithParams(string eventName, Dictionary<string, string> dictionary)
         {
             if (Application.platform != RuntimePlatform.Android) return;
             if (PluginEnable && Initialize && dictionary != null)
