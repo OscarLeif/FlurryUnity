@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +11,7 @@ namespace FlurrySDK
     /// </summary>
     public class FlurryAnalytics : MonoBehaviour
     {
-        //Disable Domain Reload Support.
+        //Disable Domain Reload Support + This is only for the Editor
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void AutoInitialize() { m_Instance = null; }
 
