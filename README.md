@@ -73,6 +73,6 @@ https://github.com/Majchrzak/Flurry-Unity-3D
 
 install as Submodule
 
-git submodule add https://github.com/OscarLeif/FlurryUnity Assets/Submodules/Flurry
+```git submodule add https://github.com/OscarLeif/FlurryUnity Assets/Submodules/Flurry```
 
 Oscar Leif
