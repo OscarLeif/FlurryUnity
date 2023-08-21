@@ -71,4 +71,8 @@ When not using a Flurry Key just write a random value, Initialize the plugin wit
 This is based from this project:
 https://github.com/Majchrzak/Flurry-Unity-3D
 
+install as Submodule
+
+git submodule add https://github.com/OscarLeif/FlurryUnity Assets/Submodules/Flurry
+
 Oscar Leif
