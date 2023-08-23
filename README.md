@@ -1,5 +1,7 @@
 # Flurry plugin for Unity-3D
 
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/OscarLeif/FlurryUnity?style=plastic)
+
 This is a free plugin only Android implementation for Unity 3D.
 
 # Features
