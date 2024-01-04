@@ -1,5 +1,9 @@
 # Flurry plugin for Unity-3D
 
+Flurry Mobile Analytics, including SDK and Analytics UI, will sunset on March 15, 2024. We're committed to assisting you during this transition. Thank you for being part of our journey.
+In case you see this, use an alternative option.
+
+
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/OscarLeif/FlurryUnity?style=plastic)
 
 This is a free plugin only Android implementation for Unity 3D.
