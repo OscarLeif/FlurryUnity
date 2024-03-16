@@ -1,4 +1,4 @@
-# Flurry plugin for Unity-3D
+# Flurry plugin for Unity-3D [Flurry Sunset on 15 March 2024 Plugin will no longer function] 
 
 Flurry Mobile Analytics, including SDK and Analytics UI, will sunset on March 15, 2024. We're committed to assisting you during this transition. Thank you for being part of our journey.
 In case you see this, use an alternative option.
